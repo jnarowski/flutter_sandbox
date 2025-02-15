@@ -36,11 +36,17 @@ dependencies:
   cupertino_icons: ^1.0.8
   intelligence: ^0.2.0
   drawing_animation: ^1.0.1
+  firebase_core: ^3.11.0
+  cloud_firestore: ^5.6.3
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+  firebase_auth: ^5.4.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  build_runner: ^2.4.8
+  riverpod_generator: ^2.3.9
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your

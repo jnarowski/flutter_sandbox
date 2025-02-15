@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "501578867919",
+    "project_id": "sandbox-c8fe2",
+    "storage_bucket": "sandbox-c8fe2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:501578867919:android:038e8312c93586dda843ba",
+        "android_client_info": {
+          "package_name": "com.babytracker.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVtyBVbzPCmcmDlwA6Oyzf3g2v0C1TUtY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:501578867919:android:62d43a63a25ce99da843ba",
+        "android_client_info": {
+          "package_name": "com.example.flutter_sandbox"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAVtyBVbzPCmcmDlwA6Oyzf3g2v0C1TUtY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
