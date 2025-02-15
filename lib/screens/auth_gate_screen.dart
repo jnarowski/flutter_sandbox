@@ -1,56 +1,29 @@
 // lib/screens/auth_gate.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/auth_providers.dart';
 import 'home_screen.dart';
 import 'login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'app_init_gate.dart';
+import '../providers/auth_providers.dart';
+import 'loading_screen.dart';
+import 'error_screen.dart';
 
-class AuthGate extends ConsumerStatefulWidget {
-  const AuthGate({super.key});
+class AuthGate extends StatelessWidget {
+  final Widget child;
 
-  @override
-  ConsumerState<AuthGate> createState() => _AuthGateState();
-}
-
-class _AuthGateState extends ConsumerState<AuthGate> {
-  late final Stream<User?> _authStateStream;
-
-  @override
-  void initState() {
-    super.initState();
-    _authStateStream = FirebaseAuth.instance.authStateChanges();
-  }
+  const AuthGate({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: _authStateStream,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CupertinoPageScaffold(
-            child: Center(
-              child: CupertinoActivityIndicator(),
-            ),
-          );
-        }
+    return Consumer(
+      builder: (context, ref, _) {
+        final authState = ref.watch(authStateChangesProvider);
 
-        if (snapshot.hasError) {
-          return CupertinoPageScaffold(
-            child: Center(
-              child: Text('Authentication error: ${snapshot.error}'),
-            ),
-          );
-        }
-
-        if (!snapshot.hasData || snapshot.data == null) {
-          return const LoginScreen();
-        }
-
-        return AppInitGate(
-          key: ValueKey(snapshot.data?.uid),
-          child: const HomeScreen(),
+        return authState.when(
+          data: (user) => user != null ? child : const LoginScreen(),
+          loading: () => const LoadingScreen(),
+          error: (error, stack) => ErrorScreen(error: error.toString()),
         );
       },
     );

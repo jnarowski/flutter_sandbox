@@ -12,7 +12,7 @@ KidsService kidsService(ref) {
 @riverpod
 Stream<List<Kid>> kids(ref, String accountId) {
   final kidsService = ref.watch(kidsServiceProvider);
-  return kidsService.getKids(accountId);
+  return kidsService.getAll(accountId);
 }
 
 @riverpod
@@ -21,23 +21,21 @@ class KidsController extends _$KidsController {
   FutureOr<void> build() {}
 
   Future<void> addKid(Kid kid) async {
-    state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(kidsServiceProvider).addKid(kid);
+      await ref.read(kidsServiceProvider).create(kid);
     });
   }
 
   Future<void> updateKid(Kid kid) async {
-    state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(kidsServiceProvider).updateKid(kid);
+      await ref.read(kidsServiceProvider).update(kid);
     });
   }
 
   Future<void> deleteKid(String kidId) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(kidsServiceProvider).deleteKid(kidId);
+      await ref.read(kidsServiceProvider).delete(kidId);
     });
   }
 }

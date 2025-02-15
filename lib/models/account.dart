@@ -15,8 +15,8 @@ class Account {
     final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
 
     return Account(
-      id: data['id'],
-      currentKidId: data['currentKidId'] ?? '',
+      id: data['id']?.toString() ?? '', // Handle potential null id
+      currentKidId: data['currentKidId'] as String?,
       createdAt: createdAtTimestamp?.toDate(),
       updatedAt: updatedAtTimestamp?.toDate(),
     );

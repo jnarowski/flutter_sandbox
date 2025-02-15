@@ -41,6 +41,7 @@ dependencies:
   flutter_riverpod: ^2.6.1
   riverpod_annotation: ^2.6.1
   firebase_auth: ^5.4.2
+  firebase_database: ^11.3.2
 
 dev_dependencies:
   flutter_test:

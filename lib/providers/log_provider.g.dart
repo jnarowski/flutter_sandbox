@@ -1,28 +1,28 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'kids_provider.dart';
+part of 'log_provider.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$kidsServiceHash() => r'26bcc686a7fdc85625f0dbb1ba48ab3f9e313536';
+String _$logServiceHash() => r'c93a1f6768e4903823bf827425ca23836a6d255b';
 
-/// See also [kidsService].
-@ProviderFor(kidsService)
-final kidsServiceProvider = AutoDisposeProvider<KidsService>.internal(
-  kidsService,
-  name: r'kidsServiceProvider',
+/// See also [logService].
+@ProviderFor(logService)
+final logServiceProvider = AutoDisposeProvider<LogService>.internal(
+  logService,
+  name: r'logServiceProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$kidsServiceHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$logServiceHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef KidsServiceRef = AutoDisposeProviderRef<KidsService>;
-String _$kidsHash() => r'e466b0c59968d06fdcadbb59d7038436f9949d79';
+typedef LogServiceRef = AutoDisposeProviderRef<LogService>;
+String _$logsHash() => r'bf1e7538df9e5070f8aa01135fb732a2e8285610';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -45,27 +45,35 @@ class _SystemHash {
   }
 }
 
-/// See also [kids].
-@ProviderFor(kids)
-const kidsProvider = KidsFamily();
+abstract class _$Logs extends BuildlessAutoDisposeStreamNotifier<List<Log>> {
+  late final String accountId;
 
-/// See also [kids].
-class KidsFamily extends Family<AsyncValue<List<Kid>>> {
-  /// See also [kids].
-  const KidsFamily();
+  Stream<List<Log>> build(
+    String accountId,
+  );
+}
 
-  /// See also [kids].
-  KidsProvider call(
+/// See also [Logs].
+@ProviderFor(Logs)
+const logsProvider = LogsFamily();
+
+/// See also [Logs].
+class LogsFamily extends Family<AsyncValue<List<Log>>> {
+  /// See also [Logs].
+  const LogsFamily();
+
+  /// See also [Logs].
+  LogsProvider call(
     String accountId,
   ) {
-    return KidsProvider(
+    return LogsProvider(
       accountId,
     );
   }
 
   @override
-  KidsProvider getProviderOverride(
-    covariant KidsProvider provider,
+  LogsProvider getProviderOverride(
+    covariant LogsProvider provider,
   ) {
     return call(
       provider.accountId,
@@ -84,29 +92,27 @@ class KidsFamily extends Family<AsyncValue<List<Kid>>> {
       _allTransitiveDependencies;
 
   @override
-  String? get name => r'kidsProvider';
+  String? get name => r'logsProvider';
 }
 
-/// See also [kids].
-class KidsProvider extends AutoDisposeStreamProvider<List<Kid>> {
-  /// See also [kids].
-  KidsProvider(
+/// See also [Logs].
+class LogsProvider
+    extends AutoDisposeStreamNotifierProviderImpl<Logs, List<Log>> {
+  /// See also [Logs].
+  LogsProvider(
     String accountId,
   ) : this._internal(
-          (ref) => kids(
-            ref as KidsRef,
-            accountId,
-          ),
-          from: kidsProvider,
-          name: r'kidsProvider',
+          () => Logs()..accountId = accountId,
+          from: logsProvider,
+          name: r'logsProvider',
           debugGetCreateSourceHash:
-              const bool.fromEnvironment('dart.vm.product') ? null : _$kidsHash,
-          dependencies: KidsFamily._dependencies,
-          allTransitiveDependencies: KidsFamily._allTransitiveDependencies,
+              const bool.fromEnvironment('dart.vm.product') ? null : _$logsHash,
+          dependencies: LogsFamily._dependencies,
+          allTransitiveDependencies: LogsFamily._allTransitiveDependencies,
           accountId: accountId,
         );
 
-  KidsProvider._internal(
+  LogsProvider._internal(
     super._createNotifier, {
     required super.name,
     required super.dependencies,
@@ -119,13 +125,20 @@ class KidsProvider extends AutoDisposeStreamProvider<List<Kid>> {
   final String accountId;
 
   @override
-  Override overrideWith(
-    Stream<List<Kid>> Function(KidsRef provider) create,
+  Stream<List<Log>> runNotifierBuild(
+    covariant Logs notifier,
   ) {
+    return notifier.build(
+      accountId,
+    );
+  }
+
+  @override
+  Override overrideWith(Logs Function() create) {
     return ProviderOverride(
       origin: this,
-      override: KidsProvider._internal(
-        (ref) => create(ref as KidsRef),
+      override: LogsProvider._internal(
+        () => create()..accountId = accountId,
         from: from,
         name: null,
         dependencies: null,
@@ -137,13 +150,13 @@ class KidsProvider extends AutoDisposeStreamProvider<List<Kid>> {
   }
 
   @override
-  AutoDisposeStreamProviderElement<List<Kid>> createElement() {
-    return _KidsProviderElement(this);
+  AutoDisposeStreamNotifierProviderElement<Logs, List<Log>> createElement() {
+    return _LogsProviderElement(this);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is KidsProvider && other.accountId == accountId;
+    return other is LogsProvider && other.accountId == accountId;
   }
 
   @override
@@ -157,34 +170,18 @@ class KidsProvider extends AutoDisposeStreamProvider<List<Kid>> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin KidsRef on AutoDisposeStreamProviderRef<List<Kid>> {
+mixin LogsRef on AutoDisposeStreamNotifierProviderRef<List<Log>> {
   /// The parameter `accountId` of this provider.
   String get accountId;
 }
 
-class _KidsProviderElement extends AutoDisposeStreamProviderElement<List<Kid>>
-    with KidsRef {
-  _KidsProviderElement(super.provider);
+class _LogsProviderElement
+    extends AutoDisposeStreamNotifierProviderElement<Logs, List<Log>>
+    with LogsRef {
+  _LogsProviderElement(super.provider);
 
   @override
-  String get accountId => (origin as KidsProvider).accountId;
+  String get accountId => (origin as LogsProvider).accountId;
 }
-
-String _$kidsControllerHash() => r'163f4cf3952b904f1767a6dc3f7b6f80ccca2fab';
-
-/// See also [KidsController].
-@ProviderFor(KidsController)
-final kidsControllerProvider =
-    AutoDisposeAsyncNotifierProvider<KidsController, void>.internal(
-  KidsController.new,
-  name: r'kidsControllerProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$kidsControllerHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-typedef _$KidsController = AutoDisposeAsyncNotifier<void>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

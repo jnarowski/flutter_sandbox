@@ -1,38 +1,36 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/kid.dart';
-import '../providers/kids_provider.dart';
+import '../models/log.dart';
+import '../providers/log_provider.dart';
 import '../providers/auth_providers.dart';
-import '../providers/account_provider.dart';
-import '../providers/app_provider.dart';
 
-class KidsScreen extends ConsumerWidget {
-  const KidsScreen({super.key});
+class LogsScreen extends ConsumerWidget {
+  const LogsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authStateChangesProvider).value;
-    final kidsAsync = ref.watch(kidsProvider(user?.uid ?? ''));
+    final logsAsync = ref.watch(logsProvider(user?.uid ?? ''));
 
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
-        middle: Text('Kids'),
-        trailing: AddKidButton(),
+        middle: Text('Logs'),
+        trailing: AddLogButton(),
       ),
       child: SafeArea(
-        child: kidsAsync.when(
-          data: (kids) {
-            if (kids.isEmpty) {
+        child: logsAsync.when(
+          data: (logs) {
+            if (logs.isEmpty) {
               return const Center(
-                child: Text('No kids added yet'),
+                child: Text('No logs added yet'),
               );
             }
 
             return ListView.builder(
-              itemCount: kids.length,
+              itemCount: logs.length,
               itemBuilder: (context, index) {
-                final kid = kids[index];
-                return KidListTile(kid: kid);
+                final log = logs[index];
+                return LogListTile(log: log);
               },
             );
           },
@@ -48,36 +46,42 @@ class KidsScreen extends ConsumerWidget {
   }
 }
 
-class AddKidButton extends ConsumerWidget {
-  const AddKidButton({super.key});
+class AddLogButton extends ConsumerWidget {
+  const AddLogButton({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
-      onTap: () => _showAddKidDialog(context, ref),
+      onTap: () => _showAddLogDialog(context, ref),
       child: const Icon(CupertinoIcons.add),
     );
   }
 
-  void _showAddKidDialog(BuildContext context, WidgetRef ref) {
-    final nameController = TextEditingController();
+  void _showAddLogDialog(BuildContext context, WidgetRef ref) {
+    final noteController = TextEditingController();
+    final amountController = TextEditingController();
     DateTime selectedDate = DateTime.now();
-    String selectedGender = 'Male';
 
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Add New Kid'),
+        title: const Text('Add New Log'),
         content: Column(
           children: [
             CupertinoTextField(
-              controller: nameController,
-              placeholder: 'Name',
+              controller: noteController,
+              placeholder: 'Note',
+            ),
+            const SizedBox(height: 8),
+            CupertinoTextField(
+              controller: amountController,
+              placeholder: 'Amount',
+              keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
             CupertinoButton(
               child: Text(
-                'Date of Birth: ${selectedDate.toString().split(' ')[0]}',
+                'Date: ${selectedDate.toString().split(' ')[0]}',
               ),
               onPressed: () {
                 showCupertinoModalPopup(
@@ -88,26 +92,12 @@ class AddKidButton extends ConsumerWidget {
                     child: CupertinoDatePicker(
                       mode: CupertinoDatePickerMode.date,
                       initialDateTime: selectedDate,
-                      maximumDate: DateTime.now(),
                       onDateTimeChanged: (date) {
                         selectedDate = date;
                       },
                     ),
                   ),
                 );
-              },
-            ),
-            const SizedBox(height: 16),
-            CupertinoSlidingSegmentedControl<String>(
-              children: const {
-                'Male': Text('Male'),
-                'Female': Text('Female'),
-              },
-              groupValue: selectedGender,
-              onValueChanged: (value) {
-                if (value != null) {
-                  selectedGender = value;
-                }
               },
             ),
           ],
@@ -120,18 +110,19 @@ class AddKidButton extends ConsumerWidget {
           CupertinoDialogAction(
             child: const Text('Add'),
             onPressed: () {
-              final name = nameController.text.trim();
-              if (name.isNotEmpty) {
+              final note = noteController.text.trim();
+              final amount = double.tryParse(amountController.text) ?? 0;
+              if (note.isNotEmpty) {
                 final user = ref.read(authStateChangesProvider).value;
-                final kid = Kid(
-                  name: name,
-                  dob: selectedDate,
-                  gender: selectedGender,
+                final log = Log(
+                  note: note,
+                  amount: amount,
+                  date: selectedDate,
                   accountId: user?.uid,
                   createdAt: DateTime.now(),
                   updatedAt: DateTime.now(),
                 );
-                ref.read(kidsControllerProvider.notifier).addKid(kid);
+                ref.read(logsProvider(user?.uid ?? '').notifier).create(log);
                 Navigator.pop(context);
               }
             },
@@ -142,63 +133,49 @@ class AddKidButton extends ConsumerWidget {
   }
 }
 
-class KidListTile extends ConsumerWidget {
-  final Kid kid;
+class LogListTile extends ConsumerWidget {
+  final Log log;
 
-  const KidListTile({super.key, required this.kid});
+  const LogListTile({super.key, required this.log});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appState = ref.watch(appProvider);
-
-    print('App State: $appState');
-    print('Account: ${appState.account}');
-
     return CupertinoListTile(
-      onTap: () async {
-        final account = appState.account;
-        if (account == null) {
-          print('Account is null! User might not be properly initialized');
-          return;
-        }
-
-        print('Account: ${account.id}');
-        print('Updating current kid to: ${kid.id}');
-
-        await ref
-            .read(accountServiceProvider)
-            .updateCurrentKid(account.id, kid.id!);
-      },
-      title: Text(kid.name),
-      subtitle: Text(
-        '${kid.gender} • Born ${kid.dob.toString().split(' ')[0]}',
-      ),
+      title: Text(log.note ?? ''),
+      subtitle: Text('Amount: ${log.amount ?? 0}'),
       trailing: GestureDetector(
-        onTap: () => _showEditKidDialog(context, ref),
+        onTap: () => _showEditLogDialog(context, ref),
         child: const Icon(CupertinoIcons.pencil),
       ),
     );
   }
 
-  void _showEditKidDialog(BuildContext context, WidgetRef ref) {
-    final nameController = TextEditingController(text: kid.name);
-    DateTime selectedDate = kid.dob;
-    String selectedGender = kid.gender;
+  void _showEditLogDialog(BuildContext context, WidgetRef ref) {
+    final noteController = TextEditingController(text: log.note);
+    final amountController =
+        TextEditingController(text: log.amount?.toString());
+    DateTime selectedDate = log.date ?? DateTime.now();
 
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
-        title: const Text('Edit Kid'),
+        title: const Text('Edit Log'),
         content: Column(
           children: [
             CupertinoTextField(
-              controller: nameController,
-              placeholder: 'Name',
+              controller: noteController,
+              placeholder: 'Note',
+            ),
+            const SizedBox(height: 8),
+            CupertinoTextField(
+              controller: amountController,
+              placeholder: 'Amount',
+              keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
             CupertinoButton(
               child: Text(
-                'Date of Birth: ${selectedDate.toString().split(' ')[0]}',
+                'Date: ${selectedDate.toString().split(' ')[0]}',
               ),
               onPressed: () {
                 showCupertinoModalPopup(
@@ -209,26 +186,12 @@ class KidListTile extends ConsumerWidget {
                     child: CupertinoDatePicker(
                       mode: CupertinoDatePickerMode.date,
                       initialDateTime: selectedDate,
-                      maximumDate: DateTime.now(),
                       onDateTimeChanged: (date) {
                         selectedDate = date;
                       },
                     ),
                   ),
                 );
-              },
-            ),
-            const SizedBox(height: 16),
-            CupertinoSlidingSegmentedControl<String>(
-              children: const {
-                'Male': Text('Male'),
-                'Female': Text('Female'),
-              },
-              groupValue: selectedGender,
-              onValueChanged: (value) {
-                if (value != null) {
-                  selectedGender = value;
-                }
               },
             ),
           ],
@@ -238,7 +201,8 @@ class KidListTile extends ConsumerWidget {
             isDestructiveAction: true,
             child: const Text('Delete'),
             onPressed: () {
-              ref.read(kidsControllerProvider.notifier).deleteKid(kid.id!);
+              final user = ref.read(authStateChangesProvider).value;
+              ref.read(logsProvider(user?.uid ?? '').notifier).delete(log.id!);
               Navigator.pop(context);
             },
           ),
@@ -249,14 +213,18 @@ class KidListTile extends ConsumerWidget {
           CupertinoDialogAction(
             child: const Text('Save'),
             onPressed: () {
-              final name = nameController.text.trim();
-              if (name.isNotEmpty) {
-                final updatedKid = kid.copyWith(
-                  name: name,
-                  dob: selectedDate,
-                  gender: selectedGender,
+              final note = noteController.text.trim();
+              final amount = double.tryParse(amountController.text) ?? 0;
+              if (note.isNotEmpty) {
+                final updatedLog = log.copyWith(
+                  note: note,
+                  amount: amount,
+                  date: selectedDate,
                 );
-                ref.read(kidsControllerProvider.notifier).updateKid(updatedKid);
+                final user = ref.read(authStateChangesProvider).value;
+                ref
+                    .read(logsProvider(user?.uid ?? '').notifier)
+                    .updateLog(updatedLog);
                 Navigator.pop(context);
               }
             },

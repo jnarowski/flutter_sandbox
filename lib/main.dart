@@ -4,14 +4,24 @@ import 'package:flutter/services.dart';
 import 'package:intelligence/intelligence.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../screens/auth_gate_screen.dart';
+import 'firebase_options.dart';
+import 'screens/app_init_gate.dart';
+import 'screens/app_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
+
   runApp(const ProviderScope(child: MyApp()));
 }
 
@@ -51,22 +61,8 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return CupertinoApp(
       theme: const CupertinoThemeData(brightness: Brightness.light),
-      home: CupertinoTabScaffold(
-        tabBar: CupertinoTabBar(
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.mic),
-              label: 'Voice Logs',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(CupertinoIcons.doc_text),
-              label: 'Notes',
-            ),
-          ],
-        ),
-        tabBuilder: (context, index) {
-          return AuthGate();
-        },
+      home: AuthGate(
+        child: AppInitGate(child: AppScreen()),
       ),
     );
   }

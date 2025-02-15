@@ -22,6 +22,9 @@ class _AppInitGateState extends ConsumerState<AppInitGate> {
 
   @override
   Widget build(BuildContext context) {
+    // Watch the app state
+    final appState = ref.watch(appProvider);
+
     return FutureBuilder(
       future: _initializationFuture,
       builder: (context, snapshot) {
@@ -37,6 +40,15 @@ class _AppInitGateState extends ConsumerState<AppInitGate> {
           return CupertinoPageScaffold(
             child: Center(
               child: Text('Error: ${snapshot.error}'),
+            ),
+          );
+        }
+
+        // Add additional check for appState
+        if (appState.account == null) {
+          return const CupertinoPageScaffold(
+            child: Center(
+              child: CupertinoActivityIndicator(),
             ),
           );
         }
