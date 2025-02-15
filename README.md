@@ -1,1 +1,4 @@
-# flutter_sandbox
+# Current Features
+
+- Flutter intelligence / AppIntents Integration Example
+- Firebase
