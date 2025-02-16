@@ -5,6 +5,7 @@ import '../../features/logs/logs_screen.dart';
 import '../../features/account/account_screen.dart';
 import '../../features/dashboard/dashboard_screen.dart';
 import '../../core/providers/intelligence_provider.dart';
+import '../ai/llm_service.dart';
 
 class AppScreen extends ConsumerWidget {
   const AppScreen({super.key});
@@ -13,11 +14,16 @@ class AppScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final message = ref.watch(intelligenceProvider);
 
-    // how to check if array is present and not empty?
+    llmService.processMessage(
+      message: 'Hello. How are you? Can you tell me a joke?',
+      provider: LLMProvider.openAI,
+      options: {
+        'model': 'gpt-4o',
+      },
+    ).then((response) => print('Response: ${response.text}'));
+
     if (message.isNotEmpty) {
-      print('Last message:');
-      // this is an array, how do I get the first element?
-      print(message[0]);
+      print('Last message: ${message[0]}');
     }
 
     return CupertinoTabScaffold(
