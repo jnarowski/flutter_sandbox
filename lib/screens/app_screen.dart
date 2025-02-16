@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'kids_screen.dart';
 import 'logs_screen.dart';
 import 'account_screen.dart';
+import 'dashboard_screen.dart';
 
 class AppScreen extends ConsumerWidget {
   const AppScreen({super.key});
@@ -12,6 +13,10 @@ class AppScreen extends ConsumerWidget {
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(CupertinoIcons.home),
+            label: 'Dashboard',
+          ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.list_bullet),
             label: 'Logs',
@@ -29,13 +34,15 @@ class AppScreen extends ConsumerWidget {
       tabBuilder: (context, index) {
         switch (index) {
           case 0:
-            return const LogsScreen();
+            return const DashboardScreen();
           case 1:
-            return const KidsScreen();
+            return const LogsScreen();
           case 2:
+            return const KidsScreen();
+          case 3:
             return const AccountScreen();
           default:
-            return const LogsScreen();
+            return const DashboardScreen();
         }
       },
     );

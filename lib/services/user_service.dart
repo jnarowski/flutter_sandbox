@@ -4,7 +4,7 @@ import '../models/user.dart';
 class UserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<User?> fetchUser(String userId) async {
+  Future<User?> fetch(String userId) async {
     try {
       final doc = await _firestore.collection('users').doc(userId).get();
 
@@ -17,7 +17,7 @@ class UserService {
     }
   }
 
-  Future<void> updateUser(User user) async {
+  Future<void> update(User user) async {
     try {
       await _firestore.collection('users').doc(user.id).update(user.toMap());
     } catch (e) {

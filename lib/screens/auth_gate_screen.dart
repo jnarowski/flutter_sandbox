@@ -1,10 +1,7 @@
 // lib/screens/auth_gate.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'home_screen.dart';
 import 'login_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'app_init_gate.dart';
 import '../providers/auth_providers.dart';
 import 'loading_screen.dart';
 import 'error_screen.dart';

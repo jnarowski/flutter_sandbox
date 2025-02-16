@@ -23,8 +23,9 @@ class LogService {
     return _logsCollection
         .where('accountId', isEqualTo: accountId)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Log.fromMap(doc.data())).toList());
+        .map((snapshot) => snapshot.docs
+            .map((doc) => Log.fromMap({'id': doc.id, ...doc.data()}))
+            .toList());
   }
 
   Future<void> create(Log log) async {
@@ -37,5 +38,25 @@ class LogService {
 
   Future<void> delete(String logId) async {
     await _logsCollection.doc(logId).delete();
+  }
+
+  Stream<List<Log>> getTodayLogs({
+    required String kidId,
+    required String accountId,
+    required DateTime startDate,
+    required DateTime endDate,
+  }) {
+    return _logsCollection
+        .where('accountId', isEqualTo: accountId)
+        .where('kidId', isEqualTo: kidId)
+        .where('date', isGreaterThanOrEqualTo: startDate)
+        .where('date', isLessThan: endDate)
+        .orderBy('date', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => Log.fromMap({'id': doc.id, ...doc.data()}))
+          .toList();
+    });
   }
 }

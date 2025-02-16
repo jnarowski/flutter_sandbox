@@ -1,18 +1,12 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/kid.dart';
-import '../services/kids_service.dart';
+import '../services/kid_service.dart';
 
-part 'kids_provider.g.dart';
-
-@riverpod
-KidsService kidsService(ref) {
-  return KidsService();
-}
+part 'kid_provider.g.dart';
 
 @riverpod
-Stream<List<Kid>> kids(ref, String accountId) {
-  final kidsService = ref.watch(kidsServiceProvider);
-  return kidsService.getAll(accountId);
+KidService kidService(ref) {
+  return KidService();
 }
 
 @riverpod
@@ -22,20 +16,20 @@ class KidsController extends _$KidsController {
 
   Future<void> addKid(Kid kid) async {
     state = await AsyncValue.guard(() async {
-      await ref.read(kidsServiceProvider).create(kid);
+      await ref.read(kidServiceProvider).create(kid);
     });
   }
 
   Future<void> updateKid(Kid kid) async {
     state = await AsyncValue.guard(() async {
-      await ref.read(kidsServiceProvider).update(kid);
+      await ref.read(kidServiceProvider).update(kid);
     });
   }
 
   Future<void> deleteKid(String kidId) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
-      await ref.read(kidsServiceProvider).delete(kidId);
+      await ref.read(kidServiceProvider).delete(kidId);
     });
   }
 }

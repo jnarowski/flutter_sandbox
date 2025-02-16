@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/kid.dart';
 
-class KidsService {
+class KidService {
   // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference<Map<String, dynamic>> _kidsCollection;
 
-  KidsService()
+  KidService()
       : _kidsCollection = FirebaseFirestore.instance.collection('kids');
 
   Future<Kid?> fetch(String id) async {

@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../models/log.dart';
 import '../services/log_service.dart';
+import 'app_provider.dart';
 
 part 'log_provider.g.dart';
 
@@ -10,25 +11,29 @@ LogService logService(ref) {
 }
 
 @riverpod
-class Logs extends _$Logs {
-  @override
-  Stream<List<Log>> build(String accountId) {
-    final logService = ref.watch(logServiceProvider);
-    return logService.getAll(accountId);
+Stream<List<Log>> todayLogs(ref) {
+  final appState = ref.watch(appProvider);
+  final logService = ref.watch(logServiceProvider);
+
+  if (appState.currentKid == null) {
+    throw Exception('No kid selected');
   }
 
-  Future<void> create(Log log) async {
-    final logService = ref.read(logServiceProvider);
-    await logService.create(log);
-  }
+  // Get start and end of today
+  final now = DateTime.now();
+  final startOfDay = DateTime(now.year, now.month, now.day);
+  final endOfDay = startOfDay.add(const Duration(days: 1));
 
-  Future<void> updateLog(Log log) async {
-    final logService = ref.read(logServiceProvider);
-    await logService.update(log);
-  }
-
-  Future<void> delete(String logId) async {
-    final logService = ref.read(logServiceProvider);
-    await logService.delete(logId);
-  }
+  return logService.getTodayLogs(
+    accountId: appState.account!.id!,
+    kidId: appState.currentKid!.id!,
+    startDate: startOfDay,
+    endDate: endOfDay,
+  );
 }
+
+final logStreamProvider =
+    StreamProvider.family<List<Log>, String>((ref, accountId) {
+  final logService = ref.watch(logServiceProvider);
+  return logService.getAll(accountId);
+});

@@ -3,14 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/log.dart';
 import '../providers/log_provider.dart';
 import '../providers/auth_providers.dart';
+import '../providers/app_provider.dart';
 
 class LogsScreen extends ConsumerWidget {
   const LogsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authStateChangesProvider).value;
-    final logsAsync = ref.watch(logsProvider(user?.uid ?? ''));
+    final appState = ref.watch(appProvider);
+    final logStream = ref.watch(logStreamProvider(appState.account!.id));
 
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
@@ -18,7 +19,7 @@ class LogsScreen extends ConsumerWidget {
         trailing: AddLogButton(),
       ),
       child: SafeArea(
-        child: logsAsync.when(
+        child: logStream.when(
           data: (logs) {
             if (logs.isEmpty) {
               return const Center(
@@ -113,16 +114,22 @@ class AddLogButton extends ConsumerWidget {
               final note = noteController.text.trim();
               final amount = double.tryParse(amountController.text) ?? 0;
               if (note.isNotEmpty) {
-                final user = ref.read(authStateChangesProvider).value;
+                final appState = ref.read(appProvider);
+                final logService = ref.read(logServiceProvider);
+                if (appState.currentKid == null) return;
+                if (appState.account == null) return;
+
                 final log = Log(
                   note: note,
                   amount: amount,
                   date: selectedDate,
-                  accountId: user?.uid,
+                  accountId: appState.account!.id,
+                  kidId: appState.currentKid?.id,
                   createdAt: DateTime.now(),
                   updatedAt: DateTime.now(),
                 );
-                ref.read(logsProvider(user?.uid ?? '').notifier).create(log);
+
+                logService.create(log);
                 Navigator.pop(context);
               }
             },
@@ -201,8 +208,7 @@ class LogListTile extends ConsumerWidget {
             isDestructiveAction: true,
             child: const Text('Delete'),
             onPressed: () {
-              final user = ref.read(authStateChangesProvider).value;
-              ref.read(logsProvider(user?.uid ?? '').notifier).delete(log.id!);
+              ref.read(logServiceProvider).delete(log.id!);
               Navigator.pop(context);
             },
           ),
@@ -221,10 +227,7 @@ class LogListTile extends ConsumerWidget {
                   amount: amount,
                   date: selectedDate,
                 );
-                final user = ref.read(authStateChangesProvider).value;
-                ref
-                    .read(logsProvider(user?.uid ?? '').notifier)
-                    .updateLog(updatedLog);
+                ref.read(logServiceProvider).update(updatedLog);
                 Navigator.pop(context);
               }
             },

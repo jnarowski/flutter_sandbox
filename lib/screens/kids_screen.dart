@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/kid.dart';
-import '../providers/kids_provider.dart';
+import '../providers/kid_provider.dart';
 import '../providers/auth_providers.dart';
 import '../providers/account_provider.dart';
 import '../providers/app_provider.dart';
@@ -151,19 +151,10 @@ class KidListTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appState = ref.watch(appProvider);
 
-    print('App State: $appState');
-    print('Account: ${appState.account}');
-
     return CupertinoListTile(
       onTap: () async {
         final account = appState.account;
-        if (account == null) {
-          print('Account is null! User might not be properly initialized');
-          return;
-        }
-
-        print('Account: ${account.id}');
-        print('Updating current kid to: ${kid.id}');
+        if (account == null) return;
 
         await ref
             .read(accountServiceProvider)
