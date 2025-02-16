@@ -2,27 +2,34 @@
 
 ## Core Features
 
-### Authentication ✅
+### Authentication
+
 - [x] Email/Password Login
 - [x] User Registration
 - [x] Password Reset
 - [ ] Magic Link Authentication
 - [ ] Google SSO
 
-### Account Setup ✅
-- [x] Create Account on Registration
-- [x] Link User to Account
-- [x] Add First Kid
-- [x] Set Current Kid
+### Account Setup (first time user)
+
+Once a user has signed up, we need to setup their account with the following steps:
+
+- [ ] Create a new account
+  - [ ] Create a user and connect it to uid of firebase auth user
+  - [ ] Create a new account
+  - [ ] Add accountId to the user
+- [ ] Create a new kid
+
+Note this must be done before they can do anything in the app
 
 ### Logging
+
 - [x] Basic CRUD Operations
 - [x] Form Validation
 - [x] Dynamic Fields Based on Type
-- [ ] Batch Operations
-- [ ] Bulk Import/Export
 
 ### Log Types
+
 - [x] Nursing
 - [x] Bottle Feeding
 - [x] Medicine
@@ -34,6 +41,7 @@
 - [x] Growth
 
 ### UI/UX
+
 - [x] Log Type Icons
 - [x] Formatted Log Display
 - [ ] Group Logs by Date
@@ -56,6 +64,7 @@
 - [ ] Add these defaults to the log form where appropriate.
 
 ### Analytics
+
 - [ ] Daily Summary
 - [ ] Weekly Trends
 - [ ] Growth Charts
@@ -63,18 +72,21 @@
 - [ ] Sleep Analysis
 
 ### Multi-user Support
+
 - [ ] Share Account
 - [ ] User Roles
 - [ ] Activity History
 - [ ] Real-time Updates
 
 ### AI Features
+
 - [ ] Voice Input
 - [ ] Natural Language Processing
 - [ ] Smart Suggestions
 - [ ] Pattern Recognition
 
 ### Notifications
+
 - [ ] Medicine Reminders
 - [ ] Feeding Alerts
 - [ ] Sleep Schedule
@@ -84,24 +96,28 @@
 ## Technical Debt
 
 ### Testing
+
 - [ ] Unit Tests
 - [ ] Widget Tests
 - [ ] Integration Tests
 - [ ] E2E Tests
 
 ### Performance
+
 - [ ] Caching
 - [ ] Offline Support
 - [ ] Image Optimization
 - [ ] Query Optimization
 
 ### Security
+
 - [ ] Data Encryption
 - [ ] Input Sanitization
 - [ ] Rate Limiting
 - [ ] Audit Logging
 
 ### Documentation
+
 - [ ] API Documentation
 - [ ] User Guide
 - [ ] Developer Setup
