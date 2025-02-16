@@ -5,7 +5,7 @@ import '../../features/logs/logs_screen.dart';
 import '../../features/account/account_screen.dart';
 import '../../features/dashboard/dashboard_screen.dart';
 import '../../core/providers/intelligence_provider.dart';
-import '../ai/llm_service.dart';
+// import '../ai/llm_service.dart';
 import '../services/logger.dart';
 
 class AppScreen extends ConsumerWidget {
@@ -15,13 +15,13 @@ class AppScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final message = ref.watch(intelligenceProvider);
 
-    llmService.processMessage(
-      message: 'Hello. How are you? Can you tell me a joke?',
-      provider: LLMProvider.openAI,
-      options: {
-        'model': 'gpt-4o',
-      },
-    ).then((response) => logger.i('Response: ${response.text}'));
+    // llmService.processMessage(
+    //   message: 'Hello. How are you? Can you tell me a joke?',
+    //   provider: LLMProvider.openAI,
+    //   options: {
+    //     'model': 'gpt-4o',
+    //   },
+    // ).then((response) => logger.i('Response: ${response.text}'));
 
     if (message.isNotEmpty) {
       logger.d('Last message: ${message[0]}');

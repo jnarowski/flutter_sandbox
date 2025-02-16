@@ -106,7 +106,7 @@ class ActivityCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          log.note ?? '',
+                          log.notes ?? '',
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),

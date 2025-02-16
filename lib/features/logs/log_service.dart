@@ -50,9 +50,9 @@ class LogService {
     return _logsCollection
         .where('accountId', isEqualTo: accountId)
         .where('kidId', isEqualTo: kidId)
-        .where('date', isGreaterThanOrEqualTo: startDate)
-        .where('date', isLessThan: endDate)
-        .orderBy('date', descending: true)
+        .where('startAt', isGreaterThanOrEqualTo: startDate)
+        .where('startAt', isLessThan: endDate)
+        .orderBy('startAt', descending: true)
         .snapshots()
         .map((snapshot) {
       return snapshot.docs

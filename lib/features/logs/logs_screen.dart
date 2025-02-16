@@ -120,9 +120,10 @@ class AddLogButton extends ConsumerWidget {
                 if (appState.account == null) return;
 
                 final log = Log(
-                  note: note,
+                  notes: note,
                   amount: amount,
-                  date: selectedDate,
+                  startAt: selectedDate,
+                  type: 'feeding',
                   accountId: appState.account!.id,
                   kidId: appState.currentKid?.id,
                   createdAt: DateTime.now(),
@@ -148,7 +149,7 @@ class LogListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CupertinoListTile(
-      title: Text(log.note ?? ''),
+      title: Text(log.notes ?? ''),
       subtitle: Text('Amount: ${log.amount ?? 0}'),
       trailing: GestureDetector(
         onTap: () => _showEditLogDialog(context, ref),
@@ -158,10 +159,10 @@ class LogListTile extends ConsumerWidget {
   }
 
   void _showEditLogDialog(BuildContext context, WidgetRef ref) {
-    final noteController = TextEditingController(text: log.note);
+    final noteController = TextEditingController(text: log.notes);
     final amountController =
         TextEditingController(text: log.amount?.toString());
-    DateTime selectedDate = log.date ?? DateTime.now();
+    DateTime selectedDate = log.startAt ?? DateTime.now();
 
     showCupertinoDialog(
       context: context,
@@ -223,9 +224,9 @@ class LogListTile extends ConsumerWidget {
               final amount = double.tryParse(amountController.text) ?? 0;
               if (note.isNotEmpty) {
                 final updatedLog = log.copyWith(
-                  note: note,
+                  notes: note,
                   amount: amount,
-                  date: selectedDate,
+                  startAt: selectedDate,
                 );
                 ref.read(logServiceProvider).update(updatedLog);
                 Navigator.pop(context);

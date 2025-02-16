@@ -60,8 +60,8 @@ class Log {
       unit: unit ?? this.unit,
       notes: notes ?? this.notes,
       data: data ?? this.data,
-      createdAt: createdAt,
-      updatedAt: updatedAt,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
     );
   }
 

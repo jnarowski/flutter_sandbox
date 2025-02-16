@@ -2,6 +2,10 @@
 
 These represent different types of kid activities that can be logged. All of these will be logged in the same table, but the form fields displayed will change depending on the type selected. We will have a separate form component for each type and if the type has multiple categories, a separate form component for each category.
 
+## Feature Location
+
+Please place all widgets in the `lib/features/logs/widgets` folder.
+
 ## Table
 
 Stores different baby activity logs (sleep, feeding, medicine, etc.).
