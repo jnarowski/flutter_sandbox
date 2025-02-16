@@ -10,6 +10,8 @@ class IntelligenceNotifier extends StateNotifier<List<String>> {
   }
 
   Future<void> _init() async {
+    print('Initializing Intelligence plugin');
+
     try {
       _intelligencePlugin.selectionsStream().listen(_handleVoiceInput);
     } on PlatformException catch (e) {
@@ -18,8 +20,7 @@ class IntelligenceNotifier extends StateNotifier<List<String>> {
   }
 
   void _handleVoiceInput(String message) {
-    print('Voice message received: $message');
-    state = [...state, message];
+    state = [message, ...state];
   }
 }
 

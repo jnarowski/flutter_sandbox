@@ -4,12 +4,22 @@ import '../../features/kids/kids_screen.dart';
 import '../../features/logs/logs_screen.dart';
 import '../../features/account/account_screen.dart';
 import '../../features/dashboard/dashboard_screen.dart';
+import '../../core/providers/intelligence_provider.dart';
 
 class AppScreen extends ConsumerWidget {
   const AppScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final message = ref.watch(intelligenceProvider);
+
+    // how to check if array is present and not empty?
+    if (message.isNotEmpty) {
+      print('Last message:');
+      // this is an array, how do I get the first element?
+      print(message[0]);
+    }
+
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
         items: const [
