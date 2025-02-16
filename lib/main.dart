@@ -1,70 +1,37 @@
 import 'package:flutter/cupertino.dart';
-import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_options.dart';
+import 'screens/auth_gate_screen.dart';
+import 'screens/app_init_gate.dart';
+import 'screens/app_screen.dart';
 
-import 'package:flutter/services.dart';
-import 'package:intelligence/intelligence.dart';
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-void main() {
-  runApp(const CupertinoApp(home: MyApp()));
+  // Firebase initialization
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
+
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  final _intelligencePlugin = Intelligence();
-  final _messages = <String>[];
-
-  @override
-  void initState() {
-    super.initState();
-    unawaited(init());
-  }
-
-  Future<void> init() async {
-    try {
-      _intelligencePlugin.selectionsStream().listen(_handleVoiceInput);
-    } on PlatformException catch (e) {
-      debugPrint(e.toString());
-    }
-  }
-
-  void _handleVoiceInput(String message) {
-    print('Voice message received: $message');
-    setState(() {
-      _messages.add(message);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      child: CustomScrollView(
-        slivers: <Widget>[
-          const CupertinoSliverNavigationBar(
-            leading: Icon(CupertinoIcons.captions_bubble_fill),
-            largeTitle: Text('Voice Messages'),
-          ),
-          SliverList.builder(
-            itemBuilder: (_, index) => Container(
-              margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: CupertinoColors.systemGrey6,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                _messages[index],
-                style: const TextStyle(fontSize: 16),
-              ),
-            ),
-            itemCount: _messages.length,
-          ),
-        ],
+    return CupertinoApp(
+      theme: const CupertinoThemeData(brightness: Brightness.light),
+      home: AuthGate(
+        child: AppInitGate(child: AppScreen()),
       ),
     );
   }
