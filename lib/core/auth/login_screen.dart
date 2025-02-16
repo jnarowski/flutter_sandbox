@@ -1,7 +1,7 @@
 // lib/screens/login_screen.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../controllers/auth_controller.dart';
+import 'auth_controller.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

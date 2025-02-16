@@ -1,10 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/kid.dart';
-import '../providers/kid_provider.dart';
-import '../providers/auth_providers.dart';
-import '../providers/account_provider.dart';
-import '../providers/app_provider.dart';
+import '../../core/models/kid.dart';
+import 'kid_provider.dart';
+import '../account/account_provider.dart';
+import '../../core/providers/app_provider.dart';
 
 class KidsScreen extends ConsumerWidget {
   const KidsScreen({super.key});

@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'kids_screen.dart';
-import 'logs_screen.dart';
-import 'account_screen.dart';
-import 'dashboard_screen.dart';
+import '../../features/kids/kids_screen.dart';
+import '../../features/logs/logs_screen.dart';
+import '../../features/account/account_screen.dart';
+import '../../features/dashboard/dashboard_screen.dart';
 
 class AppScreen extends ConsumerWidget {
   const AppScreen({super.key});

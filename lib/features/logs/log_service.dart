@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/log.dart';
+import '../../core/models/log.dart';
 
 class LogService {
   final CollectionReference<Map<String, dynamic>> _logsCollection;

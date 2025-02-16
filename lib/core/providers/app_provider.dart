@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_sandbox/providers/kid_provider.dart';
-import 'auth_providers.dart';
+import 'package:flutter_sandbox/features/kids/kid_provider.dart';
+import '../auth/auth_providers.dart';
 import '../models/account.dart';
 import '../models/kid.dart';
-import '../providers/account_provider.dart';
-import '../providers/user_provider.dart';
+import '../../features/account/account_provider.dart';
+import '../../features/users/user_provider.dart';
 
 // Define the state class
 class AppState {

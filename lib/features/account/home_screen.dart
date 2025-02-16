@@ -1,7 +1,7 @@
 // lib/screens/home_screen.dart
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../controllers/auth_controller.dart';
+import '../../core/auth/auth_controller.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});

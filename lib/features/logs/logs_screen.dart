@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../models/log.dart';
-import '../providers/log_provider.dart';
-import '../providers/app_provider.dart';
-import '../utils/date_formatter.dart';
+import '../../core/models/log.dart';
+import 'log_provider.dart';
+import '../../core/providers/app_provider.dart';
+import '../../core/utils/date_formatter.dart';
 
 class LogsScreen extends ConsumerWidget {
   const LogsScreen({super.key});

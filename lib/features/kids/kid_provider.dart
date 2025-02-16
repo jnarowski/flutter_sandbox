@@ -1,6 +1,6 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../models/kid.dart';
-import '../services/kid_service.dart';
+import '../../core/models/kid.dart';
+import 'kid_service.dart';
 
 part 'kid_provider.g.dart';
 

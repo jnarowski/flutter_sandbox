@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../models/kid.dart';
+import '../../core/models/kid.dart';
 
 class KidService {
   // final FirebaseFirestore _firestore = FirebaseFirestore.instance;

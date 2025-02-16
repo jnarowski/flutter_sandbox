@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/log_provider.dart';
-import '../models/log.dart';
+import '../logs/log_provider.dart';
+import '../../core/models/log.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});

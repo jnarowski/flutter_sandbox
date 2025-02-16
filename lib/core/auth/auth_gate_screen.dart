@@ -2,9 +2,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'login_screen.dart';
-import '../providers/auth_providers.dart';
-import 'loading_screen.dart';
-import 'error_screen.dart';
+import 'auth_providers.dart';
+import '../screens/loading_screen.dart';
+import '../screens/error_screen.dart';
 
 class AuthGate extends StatelessWidget {
   final Widget child;

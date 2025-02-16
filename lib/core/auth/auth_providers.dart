@@ -1,7 +1,7 @@
 // lib/providers/auth_providers.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../services/auth_service.dart';
+import 'auth_service.dart';
 
 part 'auth_providers.g.dart';
 

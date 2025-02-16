@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
-import 'screens/auth_gate_screen.dart';
-import 'screens/app_init_gate.dart';
-import 'screens/app_screen.dart';
+import 'core/auth/auth_gate_screen.dart';
+import 'core/screens/app_init_gate.dart';
+import 'core/screens/app_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

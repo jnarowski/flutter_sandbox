@@ -1,6 +1,6 @@
 // lib/controllers/auth_controller.dart
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../providers/auth_providers.dart';
+import 'auth_providers.dart';
 part 'auth_controller.g.dart';
 
 @riverpod
