@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/log.dart';
 import 'log_provider.dart';
 import '../../core/providers/app_provider.dart';
-import '../../core/utils/date_formatter.dart';
+import '../../features/logs/widgets/log_form.dart';
 
 class LogsScreen extends ConsumerWidget {
   const LogsScreen({super.key});
@@ -53,89 +53,20 @@ class AddLogButton extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
-      onTap: () => _showAddLogDialog(context, ref),
+      onTap: () => _showLogForm(context, ref),
       child: const Icon(CupertinoIcons.add),
     );
   }
 
-  void _showAddLogDialog(BuildContext context, WidgetRef ref) {
-    final noteController = TextEditingController();
-    final amountController = TextEditingController();
-    DateTime selectedDate = DateTime.now();
-
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Add New Log'),
-        content: Column(
-          children: [
-            CupertinoTextField(
-              controller: noteController,
-              placeholder: 'Note',
-            ),
-            const SizedBox(height: 8),
-            CupertinoTextField(
-              controller: amountController,
-              placeholder: 'Amount',
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            CupertinoButton(
-              child: Text(
-                'Date: ${DateFormatter.format(selectedDate)}',
-              ),
-              onPressed: () {
-                showCupertinoModalPopup(
-                  context: context,
-                  builder: (context) => Container(
-                    height: 216,
-                    color: CupertinoColors.systemBackground,
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.date,
-                      initialDateTime: selectedDate,
-                      onDateTimeChanged: (date) {
-                        selectedDate = date;
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+  void _showLogForm(BuildContext context, WidgetRef ref) {
+    Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (context) => LogForm(
+          type: 'feeding', // We'll make this selectable later
+          onSaved: () {
+            Navigator.pop(context);
+          },
         ),
-        actions: [
-          CupertinoDialogAction(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          CupertinoDialogAction(
-            child: const Text('Add'),
-            onPressed: () {
-              final note = noteController.text.trim();
-              final amount = double.tryParse(amountController.text) ?? 0;
-              if (note.isNotEmpty) {
-                final appState = ref.read(appProvider);
-                final logService = ref.read(logServiceProvider);
-                if (appState.currentKid == null) return;
-                if (appState.account == null) return;
-
-                final log = Log(
-                  notes: note,
-                  amount: amount,
-                  startAt: selectedDate,
-                  type: 'feeding',
-                  accountId: appState.account!.id,
-                  kidId: appState.currentKid?.id,
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                );
-
-                logService.create(log);
-                Navigator.pop(context);
-              }
-            },
-          ),
-        ],
       ),
     );
   }
@@ -150,90 +81,24 @@ class LogListTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return CupertinoListTile(
       title: Text(log.notes ?? ''),
-      subtitle: Text('Amount: ${log.amount ?? 0}'),
+      subtitle: Text('${log.type} - ${log.amount ?? 0} ${log.unit ?? ''}'),
       trailing: GestureDetector(
-        onTap: () => _showEditLogDialog(context, ref),
+        onTap: () => _showEditLogForm(context, ref),
         child: const Icon(CupertinoIcons.pencil),
       ),
     );
   }
 
-  void _showEditLogDialog(BuildContext context, WidgetRef ref) {
-    final noteController = TextEditingController(text: log.notes);
-    final amountController =
-        TextEditingController(text: log.amount?.toString());
-    DateTime selectedDate = log.startAt ?? DateTime.now();
-
-    showCupertinoDialog(
-      context: context,
-      builder: (context) => CupertinoAlertDialog(
-        title: const Text('Edit Log'),
-        content: Column(
-          children: [
-            CupertinoTextField(
-              controller: noteController,
-              placeholder: 'Note',
-            ),
-            const SizedBox(height: 8),
-            CupertinoTextField(
-              controller: amountController,
-              placeholder: 'Amount',
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            CupertinoButton(
-              child: Text(
-                'Date: ${DateFormatter.format(selectedDate)}',
-              ),
-              onPressed: () {
-                showCupertinoModalPopup(
-                  context: context,
-                  builder: (context) => Container(
-                    height: 216,
-                    color: CupertinoColors.systemBackground,
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.date,
-                      initialDateTime: selectedDate,
-                      onDateTimeChanged: (date) {
-                        selectedDate = date;
-                      },
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+  void _showEditLogForm(BuildContext context, WidgetRef ref) {
+    Navigator.of(context).push(
+      CupertinoPageRoute(
+        builder: (context) => LogForm(
+          type: log.type,
+          existingLog: log,
+          onSaved: () {
+            Navigator.pop(context);
+          },
         ),
-        actions: [
-          CupertinoDialogAction(
-            isDestructiveAction: true,
-            child: const Text('Delete'),
-            onPressed: () {
-              ref.read(logServiceProvider).delete(log.id!);
-              Navigator.pop(context);
-            },
-          ),
-          CupertinoDialogAction(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          CupertinoDialogAction(
-            child: const Text('Save'),
-            onPressed: () {
-              final note = noteController.text.trim();
-              final amount = double.tryParse(amountController.text) ?? 0;
-              if (note.isNotEmpty) {
-                final updatedLog = log.copyWith(
-                  notes: note,
-                  amount: amount,
-                  startAt: selectedDate,
-                );
-                ref.read(logServiceProvider).update(updatedLog);
-                Navigator.pop(context);
-              }
-            },
-          ),
-        ],
       ),
     );
   }
