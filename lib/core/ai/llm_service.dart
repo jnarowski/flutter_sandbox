@@ -53,8 +53,9 @@ class LLMService {
   }
 }
 
+// Global instance
 final llmService = LLMService(
   defaultProvider: LLMProvider.openAI,
-  claudeApiKey: 'xxxx',
+  claudeApiKey: dotenv.env['CLAUDE_API_KEY'] ?? '',
   openAIApiKey: dotenv.env['OPENAI_API_KEY'] ?? '',
 );

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/services/logger.dart';
 import '../logs/log_provider.dart';
 import '../../core/models/log.dart';
 
@@ -36,7 +37,7 @@ class DashboardScreen extends ConsumerWidget {
                 error: (error, stack) => Center(
                   child: Builder(
                     builder: (context) {
-                      print('Dashboard error: $error');
+                      logger.i('Dashboard error: $error');
                       return Text('Error: $error');
                     },
                   ),

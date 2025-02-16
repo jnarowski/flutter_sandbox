@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/models/user.dart';
+import '../../core/services/logger.dart';
 
 class UserService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -12,7 +13,7 @@ class UserService {
       final user = User.fromMap({'id': doc.id, ...doc.data()!});
       return user;
     } catch (e) {
-      print('Error fetching user: $e');
+      logger.i('Error fetching user: $e');
       rethrow;
     }
   }
@@ -21,7 +22,7 @@ class UserService {
     try {
       await _firestore.collection('users').doc(user.id).update(user.toMap());
     } catch (e) {
-      print('Error updating user: $e');
+      logger.i('Error updating user: $e');
       rethrow;
     }
   }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/models/account.dart';
+import '../../core/services/logger.dart';
 
 class AccountService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -15,17 +16,12 @@ class AccountService {
 
       return Account.fromMap({'id': doc.id, ...doc.data()!});
     } catch (e) {
-      print(e);
-      print('Error fetching account: $e');
+      logger.i('Error fetching account: $e');
       rethrow;
     }
   }
 
   Future<void> updateCurrentKid(String accountId, String kidId) async {
-    print(accountId);
-    print(kidId);
-    print('Updating current kid');
-
     await _accountsCollection.doc(accountId).update({
       'currentKidId': kidId,
       'updatedAt': FieldValue.serverTimestamp(),

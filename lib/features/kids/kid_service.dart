@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/models/kid.dart';
+import '../../core/services/logger.dart';
 
 class KidService {
   // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -15,8 +16,7 @@ class KidService {
 
       return Kid.fromMap({'id': doc.id, ...doc.data()!});
     } catch (e) {
-      print(e);
-      print('Error fetching kid: $e');
+      logger.i('Error fetching kid: $e');
       rethrow;
     }
   }

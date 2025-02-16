@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intelligence/intelligence.dart';
+import '../services/logger.dart';
 
 class IntelligenceNotifier extends StateNotifier<List<String>> {
   final _intelligencePlugin = Intelligence();
@@ -10,12 +11,12 @@ class IntelligenceNotifier extends StateNotifier<List<String>> {
   }
 
   Future<void> _init() async {
-    print('Initializing Intelligence plugin');
+    logger.i('Initializing Intelligence plugin');
 
     try {
       _intelligencePlugin.selectionsStream().listen(_handleVoiceInput);
     } on PlatformException catch (e) {
-      print('Intelligence plugin error: $e');
+      logger.e('Intelligence plugin error: $e');
     }
   }
 

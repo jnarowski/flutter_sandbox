@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/models/log.dart';
+import '../../core/services/logger.dart';
 
 class LogService {
   final CollectionReference<Map<String, dynamic>> _logsCollection;
@@ -14,7 +15,7 @@ class LogService {
 
       return Log.fromMap({'id': doc.id, ...doc.data()!});
     } catch (e) {
-      print('Error fetching log: $e');
+      logger.i('Error fetching log: $e');
       rethrow;
     }
   }

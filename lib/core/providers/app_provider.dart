@@ -5,6 +5,7 @@ import '../models/account.dart';
 import '../models/kid.dart';
 import '../../features/account/account_provider.dart';
 import '../../features/users/user_provider.dart';
+import '../services/logger.dart';
 
 // Define the state class
 class AppState {
@@ -60,7 +61,7 @@ class AppNotifier extends StateNotifier<AppState> {
 
       state = AppState(account: account, currentKid: currentKid);
     } catch (e) {
-      print('Error initializing app: $e');
+      logger.i('Error initializing app: $e');
       rethrow;
     }
   }
@@ -73,7 +74,7 @@ class AppNotifier extends StateNotifier<AppState> {
         state = state.copyWith(currentKid: kid);
       }
     } catch (e) {
-      print('Error setting current kid: $e');
+      logger.i('Error setting current kid: $e');
       rethrow;
     }
   }

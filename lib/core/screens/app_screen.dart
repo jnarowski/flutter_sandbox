@@ -6,6 +6,7 @@ import '../../features/account/account_screen.dart';
 import '../../features/dashboard/dashboard_screen.dart';
 import '../../core/providers/intelligence_provider.dart';
 import '../ai/llm_service.dart';
+import '../services/logger.dart';
 
 class AppScreen extends ConsumerWidget {
   const AppScreen({super.key});
@@ -20,10 +21,10 @@ class AppScreen extends ConsumerWidget {
       options: {
         'model': 'gpt-4o',
       },
-    ).then((response) => print('Response: ${response.text}'));
+    ).then((response) => logger.i('Response: ${response.text}'));
 
     if (message.isNotEmpty) {
-      print('Last message: ${message[0]}');
+      logger.d('Last message: ${message[0]}');
     }
 
     return CupertinoTabScaffold(

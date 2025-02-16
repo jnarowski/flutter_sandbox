@@ -49,8 +49,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         await ref.read(authControllerProvider.notifier).signIn(email, password);
       }
     } catch (e) {
-      print(e);
-      print('eeeeeeee');
       _showError(e.toString());
     }
   }

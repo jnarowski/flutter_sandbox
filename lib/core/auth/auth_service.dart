@@ -1,5 +1,6 @@
 // lib/services/auth_service.dart
 import 'package:firebase_auth/firebase_auth.dart';
+import '../services/logger.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -36,8 +37,8 @@ class AuthService {
         password: password,
       );
     } catch (e) {
-      print('ERROR with sign up: $e');
-      print(e);
+      logger.i('ERROR with sign up: $e');
+      logger.i(e.toString());
       throw _handleAuthException(e);
     }
   }
