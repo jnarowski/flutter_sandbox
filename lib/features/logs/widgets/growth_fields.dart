@@ -61,33 +61,6 @@ class _GrowthFieldsState extends ConsumerState<GrowthFields> {
         );
   }
 
-  void _showDateTimePicker() {
-    showCupertinoModalPopup(
-      context: context,
-      builder: (context) => Container(
-        height: 216,
-        padding: const EdgeInsets.only(top: 6.0),
-        margin: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        color: CupertinoColors.systemBackground.resolveFrom(context),
-        child: SafeArea(
-          top: false,
-          child: CupertinoDatePicker(
-            initialDateTime: widget.log.startAt,
-            mode: CupertinoDatePickerMode.dateAndTime,
-            use24hFormat: false,
-            onDateTimeChanged: (DateTime newTime) {
-              ref.read(logFormProvider.notifier).updateLog(
-                    widget.log.copyWith(startAt: newTime),
-                  );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(

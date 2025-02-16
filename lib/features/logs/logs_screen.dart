@@ -4,6 +4,7 @@ import '../../core/models/log.dart';
 import 'log_provider.dart';
 import '../../core/providers/app_provider.dart';
 import '../../features/logs/widgets/log_form.dart';
+import '../../features/logs/log_formatter.dart';
 
 class LogsScreen extends ConsumerWidget {
   const LogsScreen({super.key});
@@ -80,8 +81,17 @@ class LogListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CupertinoListTile(
-      title: Text(log.notes ?? ''),
-      subtitle: Text('${log.type} - ${log.amount ?? 0} ${log.unit ?? ''}'),
+      leading: Icon(
+        LogFormatter.getIcon(log),
+        color: CupertinoColors.systemGrey,
+      ),
+      title: Text(
+        LogFormatter.getTitle(log),
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: Text(LogFormatter.getSubtitle(log)),
       trailing: GestureDetector(
         onTap: () => _showEditLogForm(context, ref),
         child: const Icon(CupertinoIcons.pencil),

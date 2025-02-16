@@ -1,5 +1,9 @@
 # Baby Tracking App
 
+## Project Management
+
+Maintain a markdown file in instruction folder called `Tasks.md` that keeps track of things we need to do. We'll collaborate on this file and both add and remove items as we work on the project.
+
 ## Overview
 
 I want to create a baby tracking app built in Flutter using Firebase for Authentication, Storage, and Realtime Sync. It will be an AI-first app, depending heavily on voice input. Users will use iOS AppIntents and the equivalent on Android to log things like feedings, nursing, medicine, sleep, etc.
