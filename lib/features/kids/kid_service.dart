@@ -35,7 +35,15 @@ class KidService {
   }
 
   Future<void> update(Kid kid) async {
-    await _kidsCollection.doc(kid.id).update(kid.toMap());
+    // Only allow updating mutable fields
+    final updates = {
+      'name': kid.name,
+      'dob': kid.dob,
+      'gender': kid.gender,
+      'updatedAt': DateTime.now(),
+    };
+
+    await _kidsCollection.doc(kid.id).update(updates);
   }
 
   Future<void> delete(String kidId) async {

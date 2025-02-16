@@ -34,7 +34,22 @@ class LogService {
   }
 
   Future<void> update(Log log) async {
-    await _logsCollection.doc(log.id).update(log.toMap());
+    // Only allow updating mutable fields, excluding id and accountId
+    final updates = {
+      'kidId': log.kidId,
+      'type': log.type,
+      'category': log.category,
+      'subCategory': log.subCategory,
+      'startAt': log.startAt,
+      'endAt': log.endAt,
+      'amount': log.amount,
+      'unit': log.unit,
+      'notes': log.notes,
+      'data': log.data,
+      'updatedAt': DateTime.now(),
+    };
+
+    await _logsCollection.doc(log.id).update(updates);
   }
 
   Future<void> delete(String logId) async {
