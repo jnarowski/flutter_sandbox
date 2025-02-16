@@ -2,8 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/log.dart';
 import '../providers/log_provider.dart';
-import '../providers/auth_providers.dart';
 import '../providers/app_provider.dart';
+import '../utils/date_formatter.dart';
 
 class LogsScreen extends ConsumerWidget {
   const LogsScreen({super.key});
@@ -82,7 +82,7 @@ class AddLogButton extends ConsumerWidget {
             const SizedBox(height: 16),
             CupertinoButton(
               child: Text(
-                'Date: ${selectedDate.toString().split(' ')[0]}',
+                'Date: ${DateFormatter.format(selectedDate)}',
               ),
               onPressed: () {
                 showCupertinoModalPopup(
@@ -182,7 +182,7 @@ class LogListTile extends ConsumerWidget {
             const SizedBox(height: 16),
             CupertinoButton(
               child: Text(
-                'Date: ${selectedDate.toString().split(' ')[0]}',
+                'Date: ${DateFormatter.format(selectedDate)}',
               ),
               onPressed: () {
                 showCupertinoModalPopup(

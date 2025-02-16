@@ -11,8 +11,8 @@ class KidsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authStateChangesProvider).value;
-    final kidsAsync = ref.watch(kidsProvider(user?.uid ?? ''));
+    final appState = ref.watch(appProvider);
+    final kidStream = ref.watch(kidStreamProvider(appState.account!.id));
 
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
@@ -20,11 +20,11 @@ class KidsScreen extends ConsumerWidget {
         trailing: AddKidButton(),
       ),
       child: SafeArea(
-        child: kidsAsync.when(
+        child: kidStream.when(
           data: (kids) {
             if (kids.isEmpty) {
               return const Center(
-                child: Text('No kids added yet'),
+                child: Text('No kidss added yet'),
               );
             }
 
@@ -122,12 +122,13 @@ class AddKidButton extends ConsumerWidget {
             onPressed: () {
               final name = nameController.text.trim();
               if (name.isNotEmpty) {
-                final user = ref.read(authStateChangesProvider).value;
+                final appState = ref.watch(appProvider);
+
                 final kid = Kid(
                   name: name,
                   dob: selectedDate,
                   gender: selectedGender,
-                  accountId: user?.uid,
+                  accountId: appState.account!.id,
                   createdAt: DateTime.now(),
                   updatedAt: DateTime.now(),
                 );

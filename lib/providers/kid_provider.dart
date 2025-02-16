@@ -9,6 +9,12 @@ KidService kidService(ref) {
   return KidService();
 }
 
+final kidStreamProvider =
+    StreamProvider.family<List<Kid>, String>((ref, accountId) {
+  final kidService = ref.watch(kidServiceProvider);
+  return kidService.getAll(accountId);
+});
+
 @riverpod
 class KidsController extends _$KidsController {
   @override
