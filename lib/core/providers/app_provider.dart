@@ -52,6 +52,10 @@ class AppNotifier extends StateNotifier<AppState> {
         throw Exception('No account found for user');
       }
 
+      if (account.currentKidId == null) {
+        throw Exception('No kid found for account');
+      }
+
       // Fetch kid
       final currentKid = await kidService.fetch(account.currentKidId ?? '');
 

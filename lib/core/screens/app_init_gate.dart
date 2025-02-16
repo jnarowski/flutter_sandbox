@@ -53,6 +53,14 @@ class _AppInitGateState extends ConsumerState<AppInitGate> {
           );
         }
 
+        if (appState.currentKid == null) {
+          return const CupertinoPageScaffold(
+            child: Center(
+              child: CupertinoActivityIndicator(),
+            ),
+          );
+        }
+
         return widget.child;
       },
     );

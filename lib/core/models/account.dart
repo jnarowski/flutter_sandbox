@@ -11,14 +11,19 @@ class Account {
 
   // this is cleaner than fromDocument as it doesn't depend on Firestore
   factory Account.fromMap(Map<String, dynamic> data) {
-    final createdAtTimestamp = data['createdAt'] as Timestamp?;
-    final updatedAtTimestamp = data['updatedAt'] as Timestamp?;
+    // Handle both Timestamp and String (ISO8601) formats
+    DateTime? parseDate(dynamic value) {
+      if (value == null) return null;
+      if (value is Timestamp) return value.toDate();
+      if (value is String) return DateTime.parse(value);
+      return null;
+    }
 
     return Account(
-      id: data['id']?.toString() ?? '', // Handle potential null id
+      id: data['id']?.toString() ?? '',
       currentKidId: data['currentKidId'] as String?,
-      createdAt: createdAtTimestamp?.toDate(),
-      updatedAt: updatedAtTimestamp?.toDate(),
+      createdAt: parseDate(data['createdAt']),
+      updatedAt: parseDate(data['updatedAt']),
     );
   }
 
@@ -26,8 +31,9 @@ class Account {
     return {
       'id': id,
       'currentKidId': currentKidId,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
+      // Store as Timestamp for Firestore
+      'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
+      'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     };
   }
 }
