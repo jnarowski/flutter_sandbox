@@ -18,7 +18,7 @@ Once a user has signed up, we need to setup their account with the following ste
   - [ ] Create a user and connect it to uid of firebase auth user
   - [ ] Create a new account
   - [ ] Add accountId to the user
-- [ ] Create a new kid
+- [ ] Create a new kid, set this as the current kid on the account and redirect them to the dashboard
 
 Note this must be done before they can do anything in the app
 
