@@ -39,7 +39,7 @@ class AuthController extends _$AuthController {
 
     // simple disposable composable provider
     // this will create the account and user
-    final register = ref.read(registerProvider);
+    // final register = ref.read(registerProvider);
 
     try {
       // await clearAppState(); // Clear existing state before creating new account
