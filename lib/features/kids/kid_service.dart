@@ -30,8 +30,11 @@ class KidService {
             .toList());
   }
 
-  Future<void> create(Kid kid) async {
-    await _kidsCollection.add(kid.toMap());
+  Future<Kid> create(Kid kid) async {
+    final docRef = await _kidsCollection.add(kid.toMap());
+    final docSnap = await docRef.get();
+
+    return Kid.fromMap({'id': docSnap.id, ...docSnap.data()!});
   }
 
   Future<void> update(Kid kid) async {

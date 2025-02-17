@@ -6,6 +6,7 @@ import '../models/kid.dart';
 import '../../features/account/account_provider.dart';
 import '../../features/users/user_provider.dart';
 import '../services/logger.dart';
+import '../auth/auth_service.dart';
 
 // Define the state class
 class AppState {
@@ -42,7 +43,8 @@ class AppNotifier extends StateNotifier<AppState> {
       final user = await userService.fetch(authUser.uid);
 
       if (user == null) {
-        throw Exception('No user found');
+        ref.read(authServiceProvider).signOut();
+        throw Exception('No user founds');
       }
 
       // Fetch account
@@ -52,11 +54,12 @@ class AppNotifier extends StateNotifier<AppState> {
         throw Exception('No account found for user');
       }
 
-      if (account.currentKidId == null) {
-        throw Exception('No kid found for account');
+      // If no current kid, initialize state with just the account
+      if (account.currentKidId == null || account.currentKidId == '') {
+        state = AppState(account: account);
+        return;
       }
 
-      // Fetch kid
       final currentKid = await kidService.fetch(account.currentKidId ?? '');
 
       if (currentKid == null) {
@@ -71,16 +74,10 @@ class AppNotifier extends StateNotifier<AppState> {
   }
 
   Future<void> setCurrentKid(Kid kid) async {
-    try {
-      if (state.account != null) {
-        final accountService = ref.read(accountServiceProvider);
-        await accountService.updateCurrentKid(state.account!.id, kid.id!);
-        state = state.copyWith(currentKid: kid);
-      }
-    } catch (e) {
-      logger.i('Error setting current kid: $e');
-      rethrow;
-    }
+    final account = state.account!;
+    account.currentKidId = kid.id;
+
+    state = state.copyWith(account: account, currentKid: kid);
   }
 }
 

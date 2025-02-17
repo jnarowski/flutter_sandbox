@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/models/account.dart';
 import '../../core/services/logger.dart';
+import '../../features/kids/kid_service.dart';
+import '../../core/models/kid.dart';
 
 class AccountService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference<Map<String, dynamic>> _accountsCollection;
 
   AccountService()
@@ -11,7 +12,7 @@ class AccountService {
 
   Future<Account?> fetch(String accountId) async {
     try {
-      final doc = await _firestore.collection('accounts').doc(accountId).get();
+      final doc = await _accountsCollection.doc(accountId).get();
       if (!doc.exists) return null;
 
       return Account.fromMap({'id': doc.id, ...doc.data()!});
@@ -21,10 +22,53 @@ class AccountService {
     }
   }
 
+  // create
+  // right now we don't have any fields for the account
+  Future<Account> create() async {
+    final docRef = await _accountsCollection.add({});
+    final docSnap = await docRef.get();
+
+    return Account.fromMap({'id': docSnap.id, ...docSnap.data()!});
+  }
+
+  // update
+  Future<Account> update(Account account) async {
+    final updates = {
+      'currentKidId': account.currentKidId,
+      'updatedAt': DateTime.now(),
+    };
+
+    await _accountsCollection.doc(account.id).update(updates);
+    final doc = await _accountsCollection.doc(account.id).get();
+
+    return Account.fromMap({'id': doc.id, ...doc.data()!});
+  }
+
   Future<void> updateCurrentKid(String accountId, String kidId) async {
     await _accountsCollection.doc(accountId).update({
       'currentKidId': kidId,
       'updatedAt': FieldValue.serverTimestamp(),
     });
+  }
+
+  Future<Kid> createFirstKid({
+    required String accountId,
+    required String name,
+    required DateTime dob,
+    required String gender,
+  }) async {
+    final kidService = KidService();
+
+    final kid = Kid(
+      accountId: accountId,
+      name: name,
+      dob: dob,
+      gender: gender,
+    );
+
+    final newKid = await kidService.create(kid);
+    await updateCurrentKid(accountId, newKid.id!);
+
+    return newKid;
   }
 }

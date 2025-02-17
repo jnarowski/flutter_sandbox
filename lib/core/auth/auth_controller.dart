@@ -3,6 +3,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'auth_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../features/account/registration_service.dart';
+import '../../features/account/setup_providers.dart';
+
 part 'auth_controller.g.dart';
 
 @riverpod
@@ -44,7 +46,14 @@ class AuthController extends _$AuthController {
       );
 
       if (userCredential.user != null) {
-        await _registrationService.create(userCredential.user!);
+        // simple disposable composable provider
+        // this will create the account and user
+        final register = ref.read(registerProvider);
+
+        await register(
+          uid: userCredential.user!.uid,
+          email: email,
+        );
       }
     } catch (e) {
       rethrow;

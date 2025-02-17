@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/app_provider.dart';
+import 'setup_screen.dart';
 
 class AppInitGate extends ConsumerStatefulWidget {
   final Widget child;
@@ -22,7 +23,6 @@ class _AppInitGateState extends ConsumerState<AppInitGate> {
 
   @override
   Widget build(BuildContext context) {
-    // Watch the app state
     final appState = ref.watch(appProvider);
 
     return FutureBuilder(
@@ -44,24 +44,22 @@ class _AppInitGateState extends ConsumerState<AppInitGate> {
           );
         }
 
-        // Add additional check for appState
-        if (appState.account == null) {
-          return const CupertinoPageScaffold(
-            child: Center(
-              child: CupertinoActivityIndicator(),
-            ),
-          );
+        // Check if we have an account but no kids
+        if (appState.account != null && appState.currentKid == null) {
+          return const SetupScreen();
         }
 
-        if (appState.currentKid == null) {
-          return const CupertinoPageScaffold(
-            child: Center(
-              child: CupertinoActivityIndicator(),
-            ),
-          );
+        // If we have both account and current kid, show the main app
+        if (appState.account != null && appState.currentKid != null) {
+          return widget.child;
         }
 
-        return widget.child;
+        // If we don't have an account yet, show loading
+        return const CupertinoPageScaffold(
+          child: Center(
+            child: CupertinoActivityIndicator(),
+          ),
+        );
       },
     );
   }
