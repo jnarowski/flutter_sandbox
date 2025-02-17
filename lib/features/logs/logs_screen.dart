@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/providers/app_provider.dart';
-import 'log_provider.dart';
+import 'package:flutter_sandbox/core/providers/app_provider.dart';
+import 'package:flutter_sandbox/features/logs/log_provider.dart';
 import 'widgets/log_form.dart';
 import 'widgets/log_list_tile.dart';
 

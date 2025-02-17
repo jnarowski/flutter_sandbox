@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/app_provider.dart';
-import 'setup_screen.dart';
+import 'package:flutter_sandbox/core/providers/app_provider.dart';
+import 'package:flutter_sandbox/core/screens/setup_screen.dart';
 
 class AppInitGate extends ConsumerStatefulWidget {
   final Widget child;

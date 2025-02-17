@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intelligence/intelligence.dart';
-import '../services/logger.dart';
+import 'package:flutter_sandbox/core/services/logger.dart';
 
 class IntelligenceNotifier extends StateNotifier<List<String>> {
   final _intelligencePlugin = Intelligence();

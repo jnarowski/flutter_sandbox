@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sandbox/features/kids/kid_provider.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
-import 'account_provider.dart';
-import '../users/user_provider.dart';
-import '../../core/providers/app_provider.dart';
-import '../../core/models/kid.dart';
+import 'package:flutter_sandbox/features/account/account_provider.dart';
+import 'package:flutter_sandbox/features/users/user_provider.dart';
+import 'package:flutter_sandbox/core/providers/app_provider.dart';
+import 'package:flutter_sandbox/core/models/kid.dart';
 
 final registerProvider = Provider.autoDispose((ref) => ({
       required String uid,

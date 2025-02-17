@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import '../../../core/models/log.dart';
-import 'summary_row.dart';
+import 'package:flutter_sandbox/core/models/log.dart';
+import 'package:flutter_sandbox/features/dashboard/widgets/summary_row.dart';
 
 class SummaryCard extends StatelessWidget {
   final List<Log> logs;

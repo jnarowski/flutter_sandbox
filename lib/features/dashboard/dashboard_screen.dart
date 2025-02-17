@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/services/logger.dart';
-import '../logs/log_provider.dart';
-import 'widgets/activity_card.dart';
-import 'widgets/summary_card.dart';
+import 'package:flutter_sandbox/core/services/logger.dart';
+import 'package:flutter_sandbox/features/logs/log_provider.dart';
+import 'package:flutter_sandbox/features/dashboard/widgets/activity_card.dart';
+import 'package:flutter_sandbox/features/dashboard/widgets/summary_card.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});

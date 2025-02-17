@@ -1,12 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../features/kids/kids_screen.dart';
-import '../../features/logs/logs_screen.dart';
-import '../../features/account/account_screen.dart';
-import '../../features/dashboard/dashboard_screen.dart';
-import '../../core/providers/intelligence_provider.dart';
+import 'package:flutter_sandbox/features/kids/kids_screen.dart';
+import 'package:flutter_sandbox/features/logs/logs_screen.dart';
+import 'package:flutter_sandbox/features/account/account_screen.dart';
+import 'package:flutter_sandbox/features/dashboard/dashboard_screen.dart';
+import 'package:flutter_sandbox/core/providers/intelligence_provider.dart';
 // import '../ai/llm_service.dart';
-import '../services/logger.dart';
+import 'package:flutter_sandbox/core/services/logger.dart';
 
 class AppScreen extends ConsumerWidget {
   const AppScreen({super.key});

@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-import '../../core/models/account.dart';
-import '../../core/services/logger.dart';
-import '../../features/kids/kid_service.dart';
-import '../../core/models/kid.dart';
+import 'package:flutter_sandbox/core/models/account.dart';
+import 'package:flutter_sandbox/core/services/logger.dart';
+import 'package:flutter_sandbox/features/kids/kid_service.dart';
+import 'package:flutter_sandbox/core/models/kid.dart';
 
 class AccountService {
   final CollectionReference<Map<String, dynamic>> _accountsCollection;

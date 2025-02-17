@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/models/log.dart';
-import '../providers/log_form_provider.dart';
-import './shared/date_time_picker.dart';
+import 'package:flutter_sandbox/core/models/log.dart';
+import 'package:flutter_sandbox/features/logs/providers/log_form_provider.dart';
+import 'package:flutter_sandbox/features/logs/widgets/shared/date_time_picker.dart';
 
 class BathroomFields extends ConsumerStatefulWidget {
   final Log log;

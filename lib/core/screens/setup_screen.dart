@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/providers/app_provider.dart';
-import '../../core/utils/error_dialog.dart';
-import '../../features/account/setup_providers.dart';
+import 'package:flutter_sandbox/core/providers/app_provider.dart';
+import 'package:flutter_sandbox/core/utils/error_dialog.dart';
+import 'package:flutter_sandbox/features/account/setup_providers.dart';
 
 class SetupScreen extends ConsumerStatefulWidget {
   const SetupScreen({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import '../../../core/models/log.dart';
-import '../../logs/widgets/log_list_tile.dart';
+import 'package:flutter_sandbox/core/models/log.dart';
+import 'package:flutter_sandbox/features/logs/widgets/log_list_tile.dart';
 
 class ActivityCard extends StatelessWidget {
   final List<Log> logs;

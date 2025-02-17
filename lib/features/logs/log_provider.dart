@@ -1,7 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../core/models/log.dart';
-import 'log_service.dart';
-import '../../core/providers/app_provider.dart';
+import 'package:flutter_sandbox/core/models/log.dart';
+import 'package:flutter_sandbox/features/logs/log_service.dart';
+import 'package:flutter_sandbox/core/providers/app_provider.dart';
 
 part 'log_provider.g.dart';
 

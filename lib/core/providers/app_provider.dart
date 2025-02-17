@@ -1,13 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sandbox/features/kids/kid_provider.dart';
-import '../auth/auth_providers.dart';
-import '../models/account.dart';
-import '../models/kid.dart';
-import '../models/user.dart';
-import '../../features/account/account_provider.dart';
-import '../../features/users/user_provider.dart';
-import '../services/logger.dart';
+import 'package:flutter_sandbox/core/auth/auth_providers.dart';
+import 'package:flutter_sandbox/core/models/account.dart';
+import 'package:flutter_sandbox/core/models/kid.dart';
+import 'package:flutter_sandbox/core/models/user.dart';
+import 'package:flutter_sandbox/features/account/account_provider.dart';
+import 'package:flutter_sandbox/features/users/user_provider.dart';
+import 'package:flutter_sandbox/core/services/logger.dart';
 
 // Define the state class
 class AppState {

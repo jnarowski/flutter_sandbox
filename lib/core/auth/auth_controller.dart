@@ -1,11 +1,11 @@
 // lib/controllers/auth_controller.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'auth_providers.dart';
+import 'package:flutter_sandbox/core/auth/auth_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../features/account/account_provider.dart';
-import '../../features/users/user_provider.dart';
-import '../providers/app_provider.dart';
+import 'package:flutter_sandbox/features/account/account_provider.dart';
+import 'package:flutter_sandbox/features/users/user_provider.dart';
+import 'package:flutter_sandbox/core/providers/app_provider.dart';
 
 part 'auth_controller.g.dart';
 

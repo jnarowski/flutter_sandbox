@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../core/models/log.dart';
-import '../../../core/services/logger.dart';
-import '../log_service.dart';
-import '../../../core/providers/app_provider.dart';
-import '../../../features/logs/log_provider.dart';
+import 'package:flutter_sandbox/core/models/log.dart';
+import 'package:flutter_sandbox/core/services/logger.dart';
+import 'package:flutter_sandbox/features/logs/log_service.dart';
+import 'package:flutter_sandbox/core/providers/app_provider.dart';
+import 'package:flutter_sandbox/features/logs/log_provider.dart';
 
 class LogFormState {
   final Map<String, String> lastUsedCategory;
