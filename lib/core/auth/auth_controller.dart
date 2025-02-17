@@ -37,25 +37,39 @@ class AuthController extends _$AuthController {
   Future<void> signUp(String email, String password) async {
     state = const AsyncValue.loading();
 
+    // simple disposable composable provider
+    // this will create the account and user
+    final register = ref.read(registerProvider);
+
     try {
-      await clearAppState(); // Clear existing state before creating new account
+      // await clearAppState(); // Clear existing state before creating new account
 
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      if (userCredential.user != null) {
-        // simple disposable composable provider
-        // this will create the account and user
-        final register = ref.read(registerProvider);
-
-        await register(
-          uid: userCredential.user!.uid,
-          email: email,
-        );
+      if (userCredential.user == null) {
+        print('user credential is null');
+        return;
       }
+
+      print('registering');
+
+      await _registrationService.create(userCredential.user!);
+
+      // state = await AsyncValue.guard(() async {
+      //   print('registering...in guard');
+      //   await register(
+      //     uid: userCredential.user!.uid,
+      //     email: email,
+      //   );
+
+      //   return null;
+      // });
     } catch (e) {
+      print('error registering');
+      print(e);
       rethrow;
     }
   }

@@ -3,7 +3,6 @@ import '../../core/models/user.dart';
 import '../../core/services/logger.dart';
 
 class UserService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final CollectionReference<Map<String, dynamic>> _usersCollection;
 
   UserService()
@@ -42,7 +41,7 @@ class UserService {
 
   Future<void> update(User user) async {
     try {
-      await _firestore.collection('users').doc(user.id).update(user.toMap());
+      await _usersCollection.doc(user.id).update(user.toMap());
     } catch (e) {
       logger.i('Error updating user: $e');
       rethrow;

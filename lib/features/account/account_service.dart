@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:uuid/uuid.dart';
 import '../../core/models/account.dart';
 import '../../core/services/logger.dart';
 import '../../features/kids/kid_service.dart';
@@ -25,10 +26,20 @@ class AccountService {
   // create
   // right now we don't have any fields for the account
   Future<Account> create() async {
-    final docRef = await _accountsCollection.add({});
-    final docSnap = await docRef.get();
+    print('creating account 111');
 
-    return Account.fromMap({'id': docSnap.id, ...docSnap.data()!});
+    final account = Account(
+      id: const Uuid().v4(),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    // Create the account document
+    await _accountsCollection.doc(account.id).set(account.toMap());
+
+    print('creating account 222');
+
+    return account;
   }
 
   // update

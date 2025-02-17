@@ -10,14 +10,28 @@ final registerProvider = Provider.autoDispose((ref) => ({
       required String uid,
       required String email,
     }) async {
-      final accountService = ref.read(accountServiceProvider);
-      final userService = ref.read(userServiceProvider);
+      try {
+        print('registering...in provider');
 
-      final account = await accountService.create();
-      final user = await userService.create(
-          id: uid, accountId: account.id, email: email);
+        final accountService = ref.read(accountServiceProvider);
+        final userService = ref.read(userServiceProvider);
 
-      return {'account': account, 'user': user};
+        print('creating account');
+        final account = await accountService.create();
+
+        print('creating user');
+        print(uid);
+        print(email);
+
+        final user = await userService.create(
+            id: uid, accountId: account.id, email: email);
+
+        return {'account': account, 'user': user};
+      } catch (e) {
+        print('error registering');
+        print(e);
+        return null;
+      }
     });
 
 final createFirstKidProvider = Provider.autoDispose((ref) => ({
