@@ -18,15 +18,16 @@ class KidFormModal extends ConsumerStatefulWidget {
 
 class _KidFormModalState extends ConsumerState<KidFormModal> {
   final _nameController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+  late DateTime _selectedDate;
   String _selectedGender = 'Male';
 
   @override
   void initState() {
     super.initState();
+    _selectedDate = widget.kid?.dob ?? DateTime.now();
+
     if (widget.kid != null) {
       _nameController.text = widget.kid!.name;
-      _selectedDate = widget.kid!.dob;
       _selectedGender = widget.kid!.gender;
     }
   }
@@ -72,6 +73,77 @@ class _KidFormModalState extends ConsumerState<KidFormModal> {
     Navigator.pop(context);
   }
 
+  String _formatDate(DateTime date) {
+    return '${date.month}/${date.day}/${date.year}';
+  }
+
+  String _calculateAge(DateTime birthDate) {
+    final now = DateTime.now();
+    final difference = now.difference(birthDate);
+    final days = difference.inDays;
+    final months = (days / 30.44).floor(); // Average days in a month
+    final years = (days / 365.25).floor(); // Account for leap years
+
+    if (years < 1) {
+      final remainingDays = days - (months * 30.44).floor();
+      return '$months ${months == 1 ? 'month' : 'months'}, '
+          '${remainingDays.floor()} ${remainingDays.floor() == 1 ? 'day' : 'days'}';
+    } else {
+      final remainingMonths = months - (years * 12);
+      return '$years ${years == 1 ? 'year' : 'years'}, '
+          '$remainingMonths ${remainingMonths == 1 ? 'month' : 'months'}';
+    }
+  }
+
+  void _showDatePicker() {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (BuildContext context) => Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: CupertinoColors.systemBackground.resolveFrom(context),
+              border: Border(
+                top: BorderSide(
+                  color: CupertinoColors.separator.resolveFrom(context),
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                CupertinoButton(
+                  child: const Text('Done'),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            height: 216,
+            padding: const EdgeInsets.only(top: 6.0),
+            margin: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            color: CupertinoColors.systemBackground.resolveFrom(context),
+            child: SafeArea(
+              top: false,
+              child: CupertinoDatePicker(
+                mode: CupertinoDatePickerMode.date,
+                initialDateTime: _selectedDate,
+                maximumDate: DateTime.now(),
+                onDateTimeChanged: (DateTime newDate) {
+                  setState(() => _selectedDate = newDate);
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
@@ -112,15 +184,27 @@ class _KidFormModalState extends ConsumerState<KidFormModal> {
               CupertinoFormSection.insetGrouped(
                 header: const Text('Date of Birth'),
                 children: [
-                  SizedBox(
-                    height: 200,
-                    child: CupertinoDatePicker(
-                      mode: CupertinoDatePickerMode.date,
-                      initialDateTime: _selectedDate,
-                      maximumDate: DateTime.now(),
-                      onDateTimeChanged: (date) {
-                        setState(() => _selectedDate = date);
-                      },
+                  CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    onPressed: _showDatePicker,
+                    child: CupertinoFormRow(
+                      prefix: const Text('Birthday'),
+                      child: Text(
+                        _formatDate(_selectedDate),
+                        style:
+                            const TextStyle(color: CupertinoColors.systemBlue),
+                      ),
+                    ),
+                  ),
+                  CupertinoFormRow(
+                    prefix: const Text('Age'),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(
+                        _calculateAge(_selectedDate),
+                        style:
+                            const TextStyle(color: CupertinoColors.systemGrey),
+                      ),
                     ),
                   ),
                 ],
