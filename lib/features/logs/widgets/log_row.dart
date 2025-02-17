@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
-import '../../../core/models/log.dart';
-import '../log_formatter.dart';
+import 'package:flutter_sandbox/core/models/log.dart';
+import 'package:flutter_sandbox/features/logs/log_formatter.dart';
 
 class LogRow extends StatelessWidget {
   final Log log;
