@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/log.dart';
-import '../log_formatter.dart';
 import '../widgets/log_form.dart';
+import 'log_row.dart';
 
 class LogListTile extends ConsumerWidget {
   final Log log;
@@ -12,20 +12,10 @@ class LogListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return CupertinoListTile(
-      leading: Icon(
-        LogFormatter.getIcon(log),
-        color: CupertinoColors.systemGrey,
-      ),
-      title: Text(
-        LogFormatter.getTitle(log),
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      subtitle: Text(LogFormatter.getSubtitle(log)),
-      trailing: GestureDetector(
-        onTap: () => _showEditLogForm(context, ref),
-        child: const Icon(CupertinoIcons.pencil),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      title: LogRow(
+        log: log,
+        onEdit: () => _showEditLogForm(context, ref),
       ),
     );
   }
