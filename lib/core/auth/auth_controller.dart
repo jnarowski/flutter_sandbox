@@ -1,25 +1,32 @@
 // lib/controllers/auth_controller.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'auth_providers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../features/account/registration_service.dart';
-import '../../features/account/setup_providers.dart';
+import '../../features/account/account_provider.dart';
+import '../../features/users/user_provider.dart';
+import '../providers/app_provider.dart';
 
 part 'auth_controller.g.dart';
 
 @riverpod
 class AuthController extends _$AuthController {
   final FirebaseAuth _auth;
-  final RegistrationService _registrationService;
 
-  AuthController({
-    FirebaseAuth? auth,
-    RegistrationService? registrationService,
-  })  : _auth = auth ?? FirebaseAuth.instance,
-        _registrationService = registrationService ?? RegistrationService();
+  AuthController({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   @override
   FutureOr<void> build() {}
+
+  Future<void> clearAppState() async {
+    ref.invalidate(authServiceProvider);
+    ref.invalidate(accountServiceProvider);
+    ref.invalidate(userServiceProvider);
+    ref.invalidate(appProvider);
+
+    await FirebaseFirestore.instance.terminate();
+    await FirebaseFirestore.instance.clearPersistence();
+  }
 
   Future<void> signIn(String email, String password) async {
     state = const AsyncValue.loading();
@@ -28,41 +35,24 @@ class AuthController extends _$AuthController {
         .signInWithEmailAndPassword(email: email, password: password));
   }
 
-  Future<void> clearAppState() async {
-    // Clear any cached data, providers, etc.
-    ref.invalidate(authServiceProvider);
-    // Add other providers that need to be cleared
-  }
-
-  Future<void> signUp(String email, String password) async {
-    state = const AsyncValue.loading();
-
-    // simple disposable composable provider
-    // this will create the account and user
-    final register = ref.read(registerProvider);
-
+  Future<void> signUp({required String email, required String password}) async {
     try {
+      // 1. Create Firebase Auth user
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      if (userCredential.user == null) {
-        print('user credential is null');
-        return;
-      }
+      final accountService = ref.read(accountServiceProvider);
+      final userService = ref.read(userServiceProvider);
 
-      state = await AsyncValue.guard(() async {
-        await register(
-          uid: userCredential.user!.uid,
-          email: email,
-        );
+      final account = await accountService.create();
+      final user = await userService.create(
+          id: userCredential.user!.uid, accountId: account.id, email: email);
 
-        return null;
-      });
-    } catch (e) {
-      print('error registering');
-      print(e);
+      state = AsyncValue.data(user);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
       rethrow;
     }
   }

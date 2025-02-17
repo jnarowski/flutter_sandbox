@@ -53,7 +53,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final password = _passwordController.text.trim();
 
       if (_isSignUp) {
-        await ref.read(authControllerProvider.notifier).signUp(email, password);
+        await ref
+            .read(authControllerProvider.notifier)
+            .signUp(email: email, password: password);
       } else {
         await ref.read(authControllerProvider.notifier).signIn(email, password);
       }

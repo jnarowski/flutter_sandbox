@@ -84,8 +84,8 @@ class _KidFormModalState extends ConsumerState<KidFormModal> {
         ),
         trailing: CupertinoButton(
           padding: EdgeInsets.zero,
-          child: const Text('Save'),
           onPressed: _save,
+          child: const Text('Save'),
         ),
       ),
       child: SafeArea(

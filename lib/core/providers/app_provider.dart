@@ -1,24 +1,29 @@
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sandbox/features/kids/kid_provider.dart';
 import '../auth/auth_providers.dart';
 import '../models/account.dart';
 import '../models/kid.dart';
+import '../models/user.dart';
 import '../../features/account/account_provider.dart';
 import '../../features/users/user_provider.dart';
 import '../services/logger.dart';
-import '../auth/auth_service.dart';
 
 // Define the state class
 class AppState {
   final Account? account;
   final Kid? currentKid;
+  final auth.User? authUser;
+  final User? user;
 
-  AppState({this.account, this.currentKid});
+  AppState({this.account, this.currentKid, this.authUser, this.user});
 
-  AppState copyWith({Account? account, Kid? currentKid}) {
+  AppState copyWith({Account? account, User? user, Kid? currentKid}) {
     return AppState(
       account: account ?? this.account,
+      authUser: authUser ?? this.authUser,
       currentKid: currentKid ?? this.currentKid,
+      user: user ?? this.user,
     );
   }
 }
@@ -30,7 +35,7 @@ class AppNotifier extends StateNotifier<AppState> {
 
   Future<void> initialize() async {
     try {
-      final authUser = ref.read(currentUserProvider);
+      final authUser = auth.FirebaseAuth.instance.currentUser;
       final userService = ref.read(userServiceProvider);
       final accountService = ref.read(accountServiceProvider);
       final kidService = ref.read(kidServiceProvider);
@@ -66,7 +71,11 @@ class AppNotifier extends StateNotifier<AppState> {
         throw Exception('No kid found for account');
       }
 
-      state = AppState(account: account, currentKid: currentKid);
+      state = AppState(
+          account: account,
+          authUser: authUser,
+          user: user,
+          currentKid: currentKid);
     } catch (e) {
       logger.i('Error initializing app: $e');
       rethrow;

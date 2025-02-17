@@ -18,6 +18,7 @@ void main() async {
 
   await dotenv.load(fileName: ".env");
 
+  // Configure Firestore with persistence
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
