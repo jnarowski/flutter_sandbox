@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../features/account/account_provider.dart';
 import '../../core/providers/app_provider.dart';
 import '../../core/utils/error_dialog.dart';
 import '../../features/account/setup_providers.dart';

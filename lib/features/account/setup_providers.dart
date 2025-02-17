@@ -6,33 +6,25 @@ import '../users/user_provider.dart';
 import '../../core/providers/app_provider.dart';
 import '../../core/models/kid.dart';
 
-// final registerProvider = Provider.autoDispose((ref) => ({
-//       required String uid,
-//       required String email,
-//     }) async {
-//       try {
-//         print('registering...in provider');
+final registerProvider = Provider.autoDispose((ref) => ({
+      required String uid,
+      required String email,
+    }) async {
+      try {
+        final accountService = ref.read(accountServiceProvider);
+        final userService = ref.read(userServiceProvider);
 
-//         final accountService = ref.read(accountServiceProvider);
-//         final userService = ref.read(userServiceProvider);
+        final account = await accountService.create();
+        final user = await userService.create(
+            id: uid, accountId: account.id, email: email);
 
-//         print('creating account');
-//         // final account = await accountService.create();
-
-//         print('creating user');
-//         print(uid);
-//         print(email);
-
-//         final user = await userService.create(
-//             id: uid, accountId: account.id, email: email);
-
-//         return {'account': account, 'user': user};
-//       } catch (e) {
-//         print('error registering');
-//         print(e);
-//         return null;
-//       }
-//     });
+        return {'account': account, 'user': user};
+      } catch (e) {
+        print('error registering');
+        print(e);
+        return null;
+      }
+    });
 
 final createFirstKidProvider = Provider.autoDispose((ref) => ({
       required String accountId,

@@ -39,11 +39,9 @@ class AuthController extends _$AuthController {
 
     // simple disposable composable provider
     // this will create the account and user
-    // final register = ref.read(registerProvider);
+    final register = ref.read(registerProvider);
 
     try {
-      // await clearAppState(); // Clear existing state before creating new account
-
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -54,19 +52,14 @@ class AuthController extends _$AuthController {
         return;
       }
 
-      print('registering');
+      state = await AsyncValue.guard(() async {
+        await register(
+          uid: userCredential.user!.uid,
+          email: email,
+        );
 
-      await _registrationService.create(userCredential.user!);
-
-      // state = await AsyncValue.guard(() async {
-      //   print('registering...in guard');
-      //   await register(
-      //     uid: userCredential.user!.uid,
-      //     email: email,
-      //   );
-
-      //   return null;
-      // });
+        return null;
+      });
     } catch (e) {
       print('error registering');
       print(e);

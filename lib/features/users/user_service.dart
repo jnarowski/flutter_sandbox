@@ -27,16 +27,17 @@ class UserService {
     required String accountId,
     required String email,
   }) async {
-    await _usersCollection.doc(id).set({
-      'accountId': accountId,
-      'email': email,
-      'createdAt': DateTime.now(),
-      'updatedAt': DateTime.now(),
-    });
+    final user = User(
+      id: id,
+      accountId: accountId,
+      email: email,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
 
-    final docSnap = await _usersCollection.doc(id).get();
+    _usersCollection.doc(id).set(user.toMap());
 
-    return User.fromMap({'id': docSnap.id, ...docSnap.data()!});
+    return user;
   }
 
   Future<void> update(User user) async {

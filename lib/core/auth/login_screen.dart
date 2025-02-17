@@ -14,6 +14,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isSignUp = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -23,6 +24,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   void _showError(String message) {
+    if (!mounted) return;
+
     showCupertinoDialog(
       context: context,
       builder: (context) => CupertinoAlertDialog(
@@ -39,17 +42,73 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   Future<void> _submit() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+
       if (_isSignUp) {
         await ref.read(authControllerProvider.notifier).signUp(email, password);
       } else {
         await ref.read(authControllerProvider.notifier).signIn(email, password);
       }
     } catch (e) {
-      _showError(e.toString());
+      if (mounted) {
+        _showError(e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleForgotPassword() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      _showError('Please enter your email');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await ref.read(authControllerProvider.notifier).resetPassword(email);
+      if (mounted) {
+        showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('Password Reset'),
+            content:
+                const Text('Check your email for password reset instructions.'),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('OK'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _showError(e.toString());
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -83,17 +142,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   padding: const EdgeInsets.all(16),
                 ),
                 const SizedBox(height: 32),
-                CupertinoButton.filled(
-                  onPressed: _submit,
-                  child: Text(_isSignUp ? 'Sign Up' : 'Login'),
-                ),
+                if (_isLoading)
+                  const CupertinoActivityIndicator()
+                else
+                  CupertinoButton.filled(
+                    onPressed: _submit,
+                    child: Text(_isSignUp ? 'Sign Up' : 'Login'),
+                  ),
                 const SizedBox(height: 16),
                 CupertinoButton(
-                  onPressed: () {
-                    setState(() {
-                      _isSignUp = !_isSignUp;
-                    });
-                  },
+                  onPressed: _isLoading
+                      ? null
+                      : () {
+                          setState(() {
+                            _isSignUp = !_isSignUp;
+                          });
+                        },
                   child: Text(
                     _isSignUp
                         ? 'Already have an account? Login'
@@ -103,16 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 if (!_isSignUp) ...[
                   const SizedBox(height: 16),
                   CupertinoButton(
-                    onPressed: () {
-                      final email = _emailController.text.trim();
-                      if (email.isNotEmpty) {
-                        ref
-                            .read(authControllerProvider.notifier)
-                            .resetPassword(email);
-                      } else {
-                        _showError('Please enter your email');
-                      }
-                    },
+                    onPressed: _isLoading ? null : _handleForgotPassword,
                     child: const Text('Forgot Password?'),
                   ),
                 ],
@@ -122,7 +177,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           loading: () => const Center(
             child: CupertinoActivityIndicator(),
           ),
-          error: (error, _) => Center(
+          error: (error, stacktrace) => Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -132,7 +187,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
                 const SizedBox(height: 16),
                 CupertinoButton(
-                  onPressed: _submit,
+                  onPressed: _isLoading ? null : _submit,
                   child: const Text('Try Again'),
                 ),
               ],
