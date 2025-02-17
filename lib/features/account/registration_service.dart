@@ -18,11 +18,15 @@ class RegistrationService {
       updatedAt: DateTime.now(),
     );
 
+    print('creating account');
+
     // Create the account document
     await _firestore
         .collection('accounts')
         .doc(account.id)
         .set(account.toMap());
+
+    print('account created');
 
     // Create the user document
     final user = app_models.User(
