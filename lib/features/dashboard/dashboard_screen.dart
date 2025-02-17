@@ -17,53 +17,56 @@ class DashboardScreen extends ConsumerWidget {
         middle: Text('Dashboard'),
       ),
       child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Today's Summary",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              todayLogs.when(
-                data: (logs) => SummaryCard(logs: logs),
-                loading: () => const Center(
-                  child: CupertinoActivityIndicator(),
-                ),
-                error: (error, stack) => Center(
-                  child: Text('Error: $error'),
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                "Today's Activity",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              todayLogs.when(
-                data: (logs) => ActivityCard(logs: logs),
-                loading: () => const Center(
-                  child: CupertinoActivityIndicator(),
-                ),
-                error: (error, stack) => Center(
-                  child: Builder(
-                    builder: (context) {
-                      logger.i('Dashboard error: $error');
-                      return Text('Error: $error');
-                    },
+        child: CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(16.0),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  const Text(
+                    "Today's Summary",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  todayLogs.when(
+                    data: (logs) => SummaryCard(logs: logs),
+                    loading: () => const Center(
+                      child: CupertinoActivityIndicator(),
+                    ),
+                    error: (error, stack) => Center(
+                      child: Text('Error: $error'),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    "Today's Activity",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  todayLogs.when(
+                    data: (logs) => ActivityCard(logs: logs),
+                    loading: () => const Center(
+                      child: CupertinoActivityIndicator(),
+                    ),
+                    error: (error, stack) => Center(
+                      child: Builder(
+                        builder: (context) {
+                          logger.i('Dashboard error: $error');
+                          return Text('Error: $error');
+                        },
+                      ),
+                    ),
+                  ),
+                ]),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
