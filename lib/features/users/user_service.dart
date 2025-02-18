@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/models/user.dart';
 import '../../core/services/logger.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:math';
 
 class UserService {
   final CollectionReference<Map<String, dynamic>> _usersCollection;
@@ -59,6 +60,12 @@ class UserService {
     }
   }
 
+  String _generateVerificationCode() {
+    final random = Random();
+    return (100000 + random.nextInt(900000))
+        .toString(); // Generates 6-digit code
+  }
+
   /// Invites a new user to join the account
   Future<User> invite({
     required String email,
@@ -66,24 +73,26 @@ class UserService {
     required String invitedById,
   }) async {
     try {
-      // Generate a unique invite token
+      // Generate a unique invite token and verification code
       final inviteToken = const Uuid().v4();
+      final verificationCode = _generateVerificationCode();
 
       // Create a new user document with invited status
       final user = User(
-        id: inviteToken, // We'll use this as temporary ID until they accept
+        id: inviteToken,
         accountId: accountId,
         email: email,
         status: UserStatus.invited,
         inviteToken: inviteToken,
         invitedById: invitedById,
+        verificationCode: verificationCode,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
       await _usersCollection.doc(inviteToken).set(user.toMap());
 
-      // TODO: Send invitation email
+      // TODO: Send invitation email with verification code
       // This would typically be handled by a Cloud Function
 
       return user;
@@ -91,6 +100,24 @@ class UserService {
       logger.e('Error inviting user: $e');
       rethrow;
     }
+  }
+
+  /// Accepts an invitation using verification code
+  Future<User?> verifyInvitationCode({
+    required String verificationCode,
+  }) async {
+    final query = _usersCollection
+        .where('status', isEqualTo: UserStatus.invited.toJson())
+        .where('verificationCode', isEqualTo: verificationCode);
+
+    final querySnapshot = await query.get();
+
+    if (querySnapshot.docs.isEmpty) {
+      return null;
+    }
+
+    final userDoc = querySnapshot.docs.first;
+    return User.fromMap({...userDoc.data(), 'id': userDoc.id});
   }
 
   /// Accepts an invitation for a user
@@ -109,6 +136,7 @@ class UserService {
       userData['id'] = newUserId;
       userData['status'] = UserStatus.active.toJson();
       userData['updatedAt'] = DateTime.now().toIso8601String();
+      userData['verificationCode'] = null; // Clear the verification code
 
       // Create new document with the Firebase Auth UID
       await _usersCollection.doc(newUserId).set(userData);

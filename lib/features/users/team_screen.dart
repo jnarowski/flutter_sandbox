@@ -12,15 +12,13 @@ class TeamScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch both account ID and user ID
-    final appState = ref.watch(appProvider.select((state) => (
-          accountId: state.account?.id,
-          userId: state.user?.id,
-        )));
+    final appState = ref.watch(appProvider);
+    final accountId = appState.account?.id;
+    final userId = appState.user?.id;
 
-    logger.d(
-        'Building TeamScreen, account: ${appState.accountId}, user: ${appState.userId}');
+    logger.d('Building TeamScreen, account: ${accountId}, user: ${userId}');
 
-    if (appState.accountId == null || appState.userId == null) {
+    if (accountId == null || userId == null) {
       logger.d('No account or user available yet');
       return const CupertinoPageScaffold(
         child: Center(
@@ -37,7 +35,7 @@ class TeamScreen extends ConsumerWidget {
     }
 
     // Now we know accountId is not null
-    final userStream = ref.watch(usersStreamProvider(appState.accountId!));
+    final userStream = ref.watch(usersStreamProvider(accountId));
 
     logger.d(
         'UserStream state: ${userStream.valueOrNull != null ? 'has data' : 'no data'}');

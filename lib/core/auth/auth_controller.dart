@@ -6,14 +6,19 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_sandbox/features/account/account_provider.dart';
 import 'package:flutter_sandbox/features/users/user_provider.dart';
 import 'package:flutter_sandbox/core/providers/app_provider.dart';
+import '../../core/models/user.dart'
+    as UserModel; // Add this import for UserStatus
 
 part 'auth_controller.g.dart';
 
 @riverpod
 class AuthController extends _$AuthController {
   final FirebaseAuth _auth;
+  final FirebaseFirestore _firestore;
 
-  AuthController({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
+  AuthController({FirebaseAuth? auth})
+      : _auth = auth ?? FirebaseAuth.instance,
+        _firestore = FirebaseFirestore.instance;
 
   @override
   FutureOr<void> build() {}
@@ -29,10 +34,15 @@ class AuthController extends _$AuthController {
   }
 
   Future<void> signIn(String email, String password) async {
-    state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => ref
-        .read(authServiceProvider)
-        .signInWithEmailAndPassword(email: email, password: password));
+    try {
+      await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      // Remove state updates since Firebase Auth will handle the state
+    } catch (e) {
+      throw 'Failed to sign in: $e';
+    }
   }
 
   Future<void> signUp({required String email, required String password}) async {
@@ -47,13 +57,11 @@ class AuthController extends _$AuthController {
       final userService = ref.read(userServiceProvider);
 
       final account = await accountService.create();
-      final user = await userService.create(
+      await userService.create(
           id: userCredential.user!.uid, accountId: account.id, email: email);
-
-      state = AsyncValue.data(user);
-    } catch (e, st) {
-      state = AsyncValue.error(e, st);
-      rethrow;
+      // Remove state updates since Firebase Auth will handle the state
+    } catch (e) {
+      throw 'Failed to sign up: $e';
     }
   }
 
@@ -67,5 +75,53 @@ class AuthController extends _$AuthController {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(
         () => ref.read(authServiceProvider).sendPasswordResetEmail(email));
+  }
+
+  Future<UserModel.User?> lookupInvitation({
+    required String verificationCode,
+  }) async {
+    try {
+      final userService = ref.read(userServiceProvider);
+      final user = await userService.verifyInvitationCode(
+        verificationCode: verificationCode,
+      );
+
+      if (user == null) {
+        throw 'Invalid verification code';
+      }
+
+      return user;
+    } catch (e) {
+      throw 'Invalid verification code';
+    }
+  }
+
+  Future<void> verifyInvitation({
+    required String email,
+    required String verificationCode,
+    required String password,
+  }) async {
+    // TODO: Implement verification and account setup
+    // Should verify the code and set up the user's account with the provided password
+  }
+
+  Future<void> sendLoginLink(String email) async {
+    try {
+      // Generate a sign-in link with email
+      final actionCodeSettings = ActionCodeSettings(
+        url:
+            'https://your-app.page.link/login', // Replace with your dynamic link
+        handleCodeInApp: true,
+        iOSBundleId: 'com.example.app', // Replace with your bundle ID
+        androidPackageName: 'com.example.app', // Replace with your package name
+      );
+
+      await _auth.sendSignInLinkToEmail(
+        email: email,
+        actionCodeSettings: actionCodeSettings,
+      );
+    } catch (e) {
+      throw 'Failed to send login link: $e';
+    }
   }
 }

@@ -21,6 +21,7 @@ class User {
 
   final String? inviteToken;
   final String? invitedById;
+  final String? verificationCode;
 
   User({
     required this.id,
@@ -32,6 +33,7 @@ class User {
     this.status,
     this.inviteToken,
     this.invitedById,
+    this.verificationCode,
   });
 
   factory User.fromMap(Map<String, dynamic> map) {
@@ -43,6 +45,7 @@ class User {
       status: UserStatus.fromJson(map['status'] as String),
       inviteToken: map['inviteToken'] as String?,
       invitedById: map['invitedById'] as String?,
+      verificationCode: map['verificationCode'] as String?,
       createdAt: TimestampParser.parseTimestamp(map['createdAt']),
       updatedAt: TimestampParser.parseTimestamp(map['updatedAt']),
     );
@@ -57,6 +60,7 @@ class User {
       'status': status?.toJson(),
       'inviteToken': inviteToken,
       'invitedById': invitedById,
+      'verificationCode': verificationCode,
       'createdAt': createdAt?.toIso8601String(),
       'updatedAt': updatedAt?.toIso8601String(),
     };

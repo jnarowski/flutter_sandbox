@@ -31,7 +31,6 @@ class _InviteUserDialogState extends ConsumerState<InviteUserDialog> {
       final userService = ref.read(userServiceProvider);
       final appState = ref.read(appProvider);
 
-      // Get IDs from app state
       final accountId = appState.account?.id;
       final currentUserId = appState.user?.id;
 
@@ -39,14 +38,48 @@ class _InviteUserDialogState extends ConsumerState<InviteUserDialog> {
         throw Exception('Missing account or user ID');
       }
 
-      await userService.invite(
+      final user = await userService.invite(
         email: _emailController.text,
         accountId: accountId,
         invitedById: currentUserId,
       );
 
       if (mounted) {
-        Navigator.of(context).pop();
+        // Show the verification code to the user
+        await showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: const Text('User Invited'),
+            content: Column(
+              children: [
+                const SizedBox(height: 16),
+                const Text(
+                    'Please share this verification code with the user:'),
+                const SizedBox(height: 8),
+                Text(
+                  user.verificationCode ?? '',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'They will need this code to join your account when they sign up.',
+                ),
+              ],
+            ),
+            actions: [
+              CupertinoDialogAction(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context); // Close the code dialog
+                  Navigator.pop(context); // Close the invite dialog
+                },
+              ),
+            ],
+          ),
+        );
       }
     } catch (e) {
       if (mounted) {

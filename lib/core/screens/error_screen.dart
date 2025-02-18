@@ -1,15 +1,22 @@
 import 'package:flutter/cupertino.dart';
 
 class ErrorScreen extends StatelessWidget {
-  final String error;
+  final Object error;
+  final StackTrace stackTrace;
 
-  const ErrorScreen({super.key, required this.error});
+  const ErrorScreen({super.key, required this.error, required this.stackTrace});
 
   @override
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       child: Center(
-        child: Text('Error: $error'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Error: ${error.toString()}'),
+            Text('Stacktrace: ${stackTrace.toString()}'),
+          ],
+        ),
       ),
     );
   }
