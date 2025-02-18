@@ -22,3 +22,4 @@ I want to create a baby tracking app built in Flutter using Firebase for Authent
 - Please work step by step and evaluate your work before moving on to the next step.
 - Please use the Cupertino widgets for the UI.
 - Always use full path when importing instead of relative paths
+- Do not modify the pubspec.yaml file. Instead ask me to add a dependency.
