@@ -35,6 +35,26 @@ class _SolidsFieldsState extends ConsumerState<SolidsFields> {
     'allergy': '⚠️',
   };
 
+  // Add this map to store controllers
+  final Map<int, TextEditingController> _controllers = {};
+
+  @override
+  void dispose() {
+    // Clean up controllers
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  // Add this method to get or create a controller for an index
+  TextEditingController _getControllerForIndex(int index, String initialText) {
+    if (!_controllers.containsKey(index)) {
+      _controllers[index] = TextEditingController(text: initialText);
+    }
+    return _controllers[index]!;
+  }
+
   void _addFood() {
     final currentFoods = List<Map<String, dynamic>>.from(
         (widget.log.data?['foods'] as List<dynamic>?) ?? []);
@@ -53,6 +73,10 @@ class _SolidsFieldsState extends ConsumerState<SolidsFields> {
   }
 
   void _removeFood(int index) {
+    // Add this to dispose the controller when removing a food
+    _controllers[index]?.dispose();
+    _controllers.remove(index);
+
     final currentFoods = List<Map<String, dynamic>>.from(
         (widget.log.data?['foods'] as List<dynamic>?) ?? []);
     currentFoods.removeAt(index);
@@ -178,8 +202,9 @@ class _SolidsFieldsState extends ConsumerState<SolidsFields> {
                     child: CupertinoTextField(
                       placeholder: 'Notes for ${foods[i]['name']}',
                       onChanged: (value) => _updateFood(i, null, value),
-                      controller: TextEditingController(
-                        text: foods[i]['notes'] as String? ?? '',
+                      controller: _getControllerForIndex(
+                        i,
+                        foods[i]['notes'] as String? ?? '',
                       ),
                     ),
                   ),

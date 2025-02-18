@@ -25,12 +25,27 @@ class LogService {
         .where('accountId', isEqualTo: accountId)
         .snapshots()
         .map((snapshot) => snapshot.docs
-            .map((doc) => Log.fromMap({'id': doc.id, ...doc.data()}))
+            .map((doc) => Log.fromMap({...doc.data(), 'id': doc.id}))
             .toList());
   }
 
   Future<void> create(Log log) async {
-    await _logsCollection.add(log.toMap());
+    final params = {
+      'accountId': log.accountId,
+      'kidId': log.kidId,
+      'type': log.type,
+      'category': log.category,
+      'subCategory': log.subCategory,
+      'startAt': log.startAt,
+      'endAt': log.endAt,
+      'amount': log.amount,
+      'unit': log.unit,
+      'notes': log.notes,
+      'data': log.data,
+      'createdAt': DateTime.now(),
+    };
+
+    await _logsCollection.add(params);
   }
 
   Future<void> update(Log log) async {

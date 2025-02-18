@@ -1,17 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/log_form_provider.dart';
-import '../../../core/models/log.dart';
-import '../../../core/services/logger.dart';
-import 'nursing_fields.dart';
-import 'bottle_fields.dart';
-import 'medicine_fields.dart';
-import 'sleep_fields.dart';
-import 'solids_fields.dart';
-import 'bathroom_fields.dart';
-import 'pumping_fields.dart';
-import 'activity_fields.dart';
-import 'growth_fields.dart';
+import 'package:flutter_sandbox/features/logs/log_provider.dart';
+import 'package:flutter_sandbox/features/logs/providers/log_form_provider.dart';
+import 'package:flutter_sandbox/core/models/log.dart';
+import 'package:flutter_sandbox/core/services/logger.dart';
+import 'package:flutter_sandbox/features/logs/widgets/nursing_fields.dart';
+import 'package:flutter_sandbox/features/logs/widgets/bottle_fields.dart';
+import 'package:flutter_sandbox/features/logs/widgets/medicine_fields.dart';
+import 'package:flutter_sandbox/features/logs/widgets/sleep_fields.dart';
+import 'package:flutter_sandbox/features/logs/widgets/solids_fields.dart';
+import 'package:flutter_sandbox/features/logs/widgets/bathroom_fields.dart';
+import 'package:flutter_sandbox/features/logs/widgets/pumping_fields.dart';
+import 'package:flutter_sandbox/features/logs/widgets/activity_fields.dart';
+import 'package:flutter_sandbox/features/logs/widgets/growth_fields.dart';
 
 class LogForm extends ConsumerStatefulWidget {
   final String type;
@@ -182,6 +183,9 @@ class _LogFormState extends ConsumerState<LogForm> {
   Widget build(BuildContext context) {
     final formState = ref.watch(logFormProvider);
 
+    print('Form state: $formState');
+    print('Widget existingLog: ${widget.existingLog?.id}');
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('${widget.existingLog == null ? 'New' : 'Edit'} Log'),
@@ -248,12 +252,41 @@ class _LogFormState extends ConsumerState<LogForm> {
                 CupertinoButton(
                   color: CupertinoColors.destructiveRed,
                   onPressed: () async {
+                    // Show confirmation dialog first
+                    final shouldDelete = await showCupertinoDialog<bool>(
+                      context: context,
+                      builder: (context) => CupertinoAlertDialog(
+                        title: const Text('Delete Log'),
+                        content: const Text(
+                            'Are you sure you want to delete this log?'),
+                        actions: [
+                          CupertinoDialogAction(
+                            isDestructiveAction: true,
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Delete'),
+                          ),
+                          CupertinoDialogAction(
+                            isDefaultAction: true,
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Cancel'),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (shouldDelete != true || !mounted) return;
+
                     try {
+                      print('Deleting log ${widget.existingLog!.id}');
+
                       await ref
-                          .read(logFormProvider.notifier)
-                          .deleteLog(widget.existingLog!.id!);
+                          .read(logServiceProvider)
+                          .delete(widget.existingLog!.id!);
+
                       if (mounted) {
                         widget.onSaved?.call();
+                        // Pop back to previous screen after successful deletion
+                        Navigator.of(context).pop();
                       }
                     } catch (e) {
                       if (mounted) {

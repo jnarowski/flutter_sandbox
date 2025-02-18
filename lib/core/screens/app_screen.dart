@@ -29,13 +29,20 @@ class AppScreen extends ConsumerWidget {
 
     return CupertinoTabScaffold(
       tabBar: CupertinoTabBar(
+        height: 60,
+        border: const Border(
+          top: BorderSide(
+            color: CupertinoColors.systemGrey5,
+            width: 0.5,
+          ),
+        ),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.home),
-            label: 'Dashboard',
+            icon: Icon(CupertinoIcons.home, size: 24),
+            label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.list_bullet),
+            icon: Icon(CupertinoIcons.list_bullet, size: 24),
             label: 'Logs',
           ),
           BottomNavigationBarItem(
