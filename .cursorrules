@@ -69,7 +69,7 @@ Take sufficient time for this section as it guides the entire subsequent process
 ### Widgets
 
 - Use Cupertino widgets for iOS-style design
-- Prefer small, reusable widgets over large, monolithic components
+- Prefer small, reusable widgets over large, monolithic ones
 - Extract reusable logic into separate widgets or utility functions
 
 ### Design System
