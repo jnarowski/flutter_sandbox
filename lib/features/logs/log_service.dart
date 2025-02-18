@@ -1,32 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/models/log.dart';
-import '../../core/services/logger.dart';
+import 'package:flutter_sandbox/core/models/log.dart';
+import 'package:flutter_sandbox/core/firebase/repository.dart';
 
 class LogService {
-  final CollectionReference<Map<String, dynamic>> _logsCollection;
+  final FirebaseRepository<Log> _repository;
 
   LogService()
-      : _logsCollection = FirebaseFirestore.instance.collection('logs');
+      : _repository = FirebaseRepository<Log>(
+          collectionName: 'logs',
+          fromMap: Log.fromMap,
+        );
 
-  Future<Log?> fetch(String id) async {
-    try {
-      final doc = await _logsCollection.doc(id).get();
-      if (!doc.exists) return null;
-
-      return Log.fromMap({'id': doc.id, ...doc.data()!});
-    } catch (e) {
-      logger.i('Error fetching log: $e');
-      rethrow;
-    }
-  }
+  Future<Log?> fetch(String id) => _repository.get(id);
 
   Stream<List<Log>> getAll(String accountId) {
-    return _logsCollection
-        .where('accountId', isEqualTo: accountId)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Log.fromMap({...doc.data(), 'id': doc.id}))
-            .toList());
+    return _repository.getAllStream({'accountId': accountId});
   }
 
   Future<void> create(Log log) async {
@@ -45,12 +33,13 @@ class LogService {
       'createdAt': DateTime.now(),
     };
 
-    await _logsCollection.add(params);
+    await _repository.create(Log.fromMap(params));
   }
 
   Future<void> update(Log log) async {
-    // Only allow updating mutable fields, excluding id and accountId
-    final updates = {
+    final updates = Log.fromMap({
+      'id': log.id,
+      'accountId': log.accountId,
       'kidId': log.kidId,
       'type': log.type,
       'category': log.category,
@@ -62,14 +51,12 @@ class LogService {
       'notes': log.notes,
       'data': log.data,
       'updatedAt': DateTime.now(),
-    };
+    });
 
-    await _logsCollection.doc(log.id).update(updates);
+    await _repository.update(updates);
   }
 
-  Future<void> delete(String logId) async {
-    await _logsCollection.doc(logId).delete();
-  }
+  Future<void> delete(String logId) => _repository.delete(logId);
 
   Stream<List<Log>> getTodayLogs({
     required String kidId,
@@ -77,14 +64,17 @@ class LogService {
     required DateTime startDate,
     required DateTime endDate,
   }) {
-    return _logsCollection
-        .where('accountId', isEqualTo: accountId)
-        .where('kidId', isEqualTo: kidId)
+    Query<Map<String, dynamic>> query = _repository.query({
+      'accountId': accountId,
+      'kidId': kidId,
+    });
+
+    query = query
         .where('startAt', isGreaterThanOrEqualTo: startDate)
         .where('startAt', isLessThan: endDate)
-        .orderBy('startAt', descending: true)
-        .snapshots()
-        .map((snapshot) {
+        .orderBy('startAt', descending: true);
+
+    return query.snapshots().map((snapshot) {
       return snapshot.docs
           .map((doc) => Log.fromMap({'id': doc.id, ...doc.data()}))
           .toList();

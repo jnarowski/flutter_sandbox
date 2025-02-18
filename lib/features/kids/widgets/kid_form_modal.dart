@@ -19,7 +19,7 @@ class KidFormModal extends ConsumerStatefulWidget {
 class _KidFormModalState extends ConsumerState<KidFormModal> {
   final _nameController = TextEditingController();
   late DateTime _selectedDate;
-  String _selectedGender = 'Male';
+  String _selectedGender = 'male';
 
   @override
   void initState() {
@@ -28,7 +28,7 @@ class _KidFormModalState extends ConsumerState<KidFormModal> {
 
     if (widget.kid != null) {
       _nameController.text = widget.kid!.name;
-      _selectedGender = widget.kid!.gender;
+      _selectedGender = widget.kid!.gender.toLowerCase();
     }
   }
 
@@ -218,9 +218,9 @@ class _KidFormModalState extends ConsumerState<KidFormModal> {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: CupertinoSegmentedControl<String>(
                         children: const {
-                          'Male': Text('Male'),
-                          'Female': Text('Female'),
-                          'Other': Text('Other'),
+                          'male': Text('Male'),
+                          'female': Text('Female'),
+                          'other': Text('Other'),
                         },
                         groupValue: _selectedGender,
                         onValueChanged: (value) {

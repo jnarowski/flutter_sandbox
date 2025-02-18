@@ -68,6 +68,7 @@ class AccountService {
     final kidService = KidService();
 
     final kid = Kid(
+      id: const Uuid().v4(),
       accountId: accountId,
       name: name,
       dob: dob,

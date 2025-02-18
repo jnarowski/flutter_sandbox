@@ -1,55 +1,44 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/models/kid.dart';
-import '../../core/services/logger.dart';
+import '../../core/firebase/repository.dart';
 
 class KidService {
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final CollectionReference<Map<String, dynamic>> _kidsCollection;
+  final FirebaseRepository<Kid> _repository;
 
   KidService()
-      : _kidsCollection = FirebaseFirestore.instance.collection('kids');
+      : _repository = FirebaseRepository<Kid>(
+          collectionName: 'kids',
+          fromMap: Kid.fromMap,
+        );
 
   Future<Kid?> fetch(String id) async {
-    try {
-      final doc = await _kidsCollection.doc(id).get();
-      if (!doc.exists) return null;
-
-      return Kid.fromMap({'id': doc.id, ...doc.data()!});
-    } catch (e) {
-      logger.i('Error fetching kid: $e');
-      rethrow;
-    }
+    return _repository.get(id);
   }
 
   Stream<List<Kid>> getAll(String accountId) {
-    return _kidsCollection
-        .where('accountId', isEqualTo: accountId)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Kid.fromMap({'id': doc.id, ...doc.data()}))
-            .toList());
+    return _repository.getAllStream({'accountId': accountId});
   }
 
   Future<Kid> create(Kid kid) async {
-    final docRef = await _kidsCollection.add(kid.toMap());
-    final docSnap = await docRef.get();
-
-    return Kid.fromMap({'id': docSnap.id, ...docSnap.data()!});
+    return _repository.create(kid);
   }
 
   Future<void> update(Kid kid) async {
     // Only allow updating mutable fields
-    final updates = {
-      'name': kid.name,
-      'dob': kid.dob,
-      'gender': kid.gender,
-      'updatedAt': DateTime.now(),
-    };
+    final updates = Kid(
+      id: kid.id,
+      accountId: kid.accountId,
+      name: kid.name,
+      dob: kid.dob,
+      gender: kid.gender,
+      createdAt: kid.createdAt,
+      updatedAt: DateTime.now(),
+    );
 
-    await _kidsCollection.doc(kid.id).update(updates);
+    await _repository.update(updates);
   }
 
   Future<void> delete(String kidId) async {
-    await _kidsCollection.doc(kidId).delete();
+    await _repository.delete(kidId);
   }
 }

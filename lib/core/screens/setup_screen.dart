@@ -108,9 +108,9 @@ class _SetupScreenState extends ConsumerState<SetupScreen> {
                 const SizedBox(height: 16),
                 CupertinoSegmentedControl<String>(
                   children: const {
-                    'M': Text('Boy'),
-                    'F': Text('Girl'),
-                    'Other': Text('Other'),
+                    'male': Text('Boy'),
+                    'female': Text('Girl'),
+                    'other': Text('Other'),
                   },
                   groupValue: _selectedGender,
                   onValueChanged: (String value) {

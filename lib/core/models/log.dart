@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'base_model.dart';
 
-class Log {
+class Log extends BaseModel {
+  @override
   String? id;
   String? accountId;
   String? kidId;

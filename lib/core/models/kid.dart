@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'base_model.dart';
 
-class Kid {
-  final String? id;
-  String? accountId;
+class Kid extends BaseModel {
+  @override
+  final String id;
+  final String accountId;
   final String name;
   final DateTime dob;
   final String gender;
@@ -10,11 +12,11 @@ class Kid {
   final DateTime? updatedAt;
 
   Kid({
-    this.id,
+    required this.id,
     required this.name,
     required this.dob,
     required this.gender,
-    this.accountId,
+    required this.accountId,
     this.createdAt,
     this.updatedAt,
   });

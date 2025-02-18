@@ -37,7 +37,7 @@ class UserService {
         updatedAt: DateTime.now(),
       );
 
-      return await _repository.create(user, id);
+      return await _repository.create(user);
     } catch (e) {
       logger.i('Error creating user: $e');
       rethrow;
@@ -83,7 +83,7 @@ class UserService {
         updatedAt: DateTime.now(),
       );
 
-      await _repository.create(user, inviteToken);
+      await _repository.create(user);
 
       // TODO: Send invitation email with verification code
       // This would typically be handled by a Cloud Function

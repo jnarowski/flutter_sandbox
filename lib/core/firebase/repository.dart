@@ -25,12 +25,12 @@ class FirebaseRepository<T extends BaseModel> {
     }
   }
 
-  Future<T> create(T item, [String? id]) async {
+  Future<T> create(T item) async {
     try {
-      final docRef = id != null ? _collection.doc(id) : _collection.doc();
+      final docRef = _collection.doc(item.id);
       final data = item.toMap();
       await docRef.set(data);
-      return fromMap({'id': docRef.id, ...data});
+      return item;
     } catch (e) {
       logger.e('Error creating document in $collectionName: $e');
       rethrow;
