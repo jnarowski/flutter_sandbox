@@ -149,14 +149,24 @@ class LogsScreen extends ConsumerWidget {
   }
 
   String _formatWeekButton(DateTime date) {
-    // Get start and end of week
+    final now = DateTime.now();
+    final currentWeekStart = now.subtract(Duration(days: now.weekday - 1));
+    final lastWeekStart = currentWeekStart.subtract(const Duration(days: 7));
+
+    // Get start and end of the button's week
     final weekStart = date.subtract(Duration(days: date.weekday - 1));
     final weekEnd = weekStart.add(const Duration(days: 6));
 
-    // Format dates
+    // Check if this is current or last week
+    if (_isSameWeek(date, now)) {
+      return 'This Week';
+    } else if (_isSameWeek(date, lastWeekStart)) {
+      return 'Last Week';
+    }
+
+    // Format dates for other weeks
     final startStr = '${weekStart.month}/${weekStart.day}';
     final endStr = '${weekEnd.month}/${weekEnd.day}';
-
     return '$startStr-$endStr';
   }
 
