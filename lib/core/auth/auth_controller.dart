@@ -2,20 +2,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:flutter_sandbox/core/auth/auth_providers.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter_sandbox/features/account/account_provider.dart';
 import 'package:flutter_sandbox/features/users/user_provider.dart';
 import 'package:flutter_sandbox/core/providers/app_provider.dart';
-import '../../core/models/user.dart'
-    as UserModel; // Add this import for UserStatus
-
+import 'package:flutter_sandbox/core/models/user.dart';
 part 'auth_controller.g.dart';
 
 @riverpod
 class AuthController extends _$AuthController {
-  final FirebaseAuth _auth;
+  final auth.FirebaseAuth _auth;
 
-  AuthController({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
+  AuthController({auth.FirebaseAuth? firebaseAuth})
+      : _auth = firebaseAuth ?? auth.FirebaseAuth.instance;
 
   @override
   FutureOr<void> build() {}
@@ -74,7 +73,7 @@ class AuthController extends _$AuthController {
         () => ref.read(authServiceProvider).sendPasswordResetEmail(email));
   }
 
-  Future<UserModel.User?> lookupInvitation({
+  Future<User?> lookupInvitation({
     required String verificationCode,
   }) async {
     try {
@@ -94,7 +93,7 @@ class AuthController extends _$AuthController {
   }
 
   Future<void> acceptInvitation({
-    required UserModel.User user,
+    required User user,
     required String password,
   }) async {
     final userService = ref.read(userServiceProvider);
