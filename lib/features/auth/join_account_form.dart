@@ -162,6 +162,24 @@ class _JoinAccountFormState extends ConsumerState<JoinAccountForm> {
               ),
               if (_foundEmail != null) ...[
                 const SizedBox(height: 16),
+                const Row(
+                  children: [
+                    Icon(
+                      CupertinoIcons.checkmark_circle_fill,
+                      color: CupertinoColors.activeGreen,
+                      size: 16,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Invite Successfully Found',
+                      style: TextStyle(
+                        color: CupertinoColors.activeGreen,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 CupertinoTextField(
                   enabled: false,
                   placeholder: 'Email',

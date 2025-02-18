@@ -14,11 +14,8 @@ part 'auth_controller.g.dart';
 @riverpod
 class AuthController extends _$AuthController {
   final FirebaseAuth _auth;
-  final FirebaseFirestore _firestore;
 
-  AuthController({FirebaseAuth? auth})
-      : _auth = auth ?? FirebaseAuth.instance,
-        _firestore = FirebaseFirestore.instance;
+  AuthController({FirebaseAuth? auth}) : _auth = auth ?? FirebaseAuth.instance;
 
   @override
   FutureOr<void> build() {}
