@@ -1,13 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../users/team_screen.dart';
+import 'package:flutter_sandbox/features/users/team_screen.dart';
+import 'package:flutter_sandbox/core/providers/app_provider.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(appProvider).user;
+    final email = user?.email ?? 'No email';
+
     return CupertinoPageScaffold(
       navigationBar: const CupertinoNavigationBar(
         middle: Text('Account'),
@@ -15,6 +19,16 @@ class AccountScreen extends ConsumerWidget {
       child: SafeArea(
         child: Column(
           children: [
+            CupertinoListSection(
+              header: const Text('Profile'),
+              children: [
+                CupertinoTextFormFieldRow(
+                  prefix: const Text('Email'),
+                  enabled: false,
+                  initialValue: email,
+                ),
+              ],
+            ),
             CupertinoListSection(
               header: const Text('Team'),
               children: [
