@@ -1,4 +1,4 @@
-import '../utils/timestamp_parser.dart';
+import 'base_model.dart';
 
 enum UserStatus {
   active,
@@ -10,59 +10,85 @@ enum UserStatus {
   static UserStatus fromJson(String json) => UserStatus.values.byName(json);
 }
 
-class User {
+class User extends BaseModel {
+  @override
   final String id;
-  final String? email;
-  final String? name;
   final String accountId;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final UserStatus? status;
-
+  final String email;
+  final String? name;
+  final UserStatus status;
   final String? inviteToken;
   final String? invitedById;
   final String? verificationCode;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   User({
     required this.id,
     required this.accountId,
     required this.email,
     this.name,
-    this.createdAt,
-    this.updatedAt,
-    this.status,
+    required this.status,
     this.inviteToken,
     this.invitedById,
     this.verificationCode,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      id: map['id'] ?? '',
-      accountId: map['accountId'] ?? '',
-      name: map['name'] as String?,
-      email: map['email'] as String?,
-      status: UserStatus.fromJson(map['status'] as String),
-      inviteToken: map['inviteToken'] as String?,
-      invitedById: map['invitedById'] as String?,
-      verificationCode: map['verificationCode'] as String?,
-      createdAt: TimestampParser.parseTimestamp(map['createdAt']),
-      updatedAt: TimestampParser.parseTimestamp(map['updatedAt']),
-    );
-  }
-
+  @override
   Map<String, dynamic> toMap() {
     return {
-      'id': id,
+      'accountId': accountId,
       'email': email,
       'name': name,
-      'accountId': accountId,
-      'status': status?.toJson(),
+      'status': status.toJson(),
       'inviteToken': inviteToken,
       'invitedById': invitedById,
       'verificationCode': verificationCode,
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
+  }
+
+  factory User.fromMap(Map<String, dynamic> map) {
+    return User(
+      id: map['id'],
+      accountId: map['accountId'],
+      email: map['email'],
+      name: map['name'],
+      status: UserStatus.fromJson(map['status']),
+      inviteToken: map['inviteToken'],
+      invitedById: map['invitedById'],
+      verificationCode: map['verificationCode'],
+      createdAt: DateTime.parse(map['createdAt']),
+      updatedAt: DateTime.parse(map['updatedAt']),
+    );
+  }
+
+  User copyWith({
+    String? id,
+    String? accountId,
+    String? email,
+    String? name,
+    UserStatus? status,
+    String? inviteToken,
+    String? invitedById,
+    String? verificationCode,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return User(
+      id: id ?? this.id,
+      accountId: accountId ?? this.accountId,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      status: status ?? this.status,
+      inviteToken: inviteToken ?? this.inviteToken,
+      invitedById: invitedById ?? this.invitedById,
+      verificationCode: verificationCode, // Allow null for verification code
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
 }

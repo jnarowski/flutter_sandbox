@@ -105,8 +105,7 @@ class TeamScreen extends ConsumerWidget {
             children: users
                 .map((user) => CupertinoListTile(
                       leading: const Icon(CupertinoIcons.person),
-                      title: Text(user.email ?? 'No email'),
-                      subtitle: Text(user.name ?? 'No name'),
+                      title: Text(user.email),
                       trailing: user.status == 'invited'
                           ? CupertinoButton(
                               padding: EdgeInsets.zero,

@@ -1,37 +1,33 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/models/user.dart';
-import '../../core/services/logger.dart';
+import 'package:flutter_sandbox/core/models/user.dart';
+import 'package:flutter_sandbox/core/firebase/repository.dart';
+import 'package:flutter_sandbox/core/services/logger.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:math';
 
 class UserService {
-  final CollectionReference<Map<String, dynamic>> _usersCollection;
+  final FirebaseRepository<User> _repository;
 
   UserService()
-      : _usersCollection = FirebaseFirestore.instance.collection('users');
+      : _repository = FirebaseRepository<User>(
+          collectionName: 'users',
+          fromMap: User.fromMap,
+        );
 
   Future<User?> fetch(String userId) async {
     try {
-      final doc = await _usersCollection.doc(userId).get();
-
-      if (!doc.exists) return null;
-      final user = User.fromMap({'id': doc.id, ...doc.data()!});
-      return user;
+      return await _repository.get(userId);
     } catch (e) {
       logger.i('Error fetching user: $e');
       rethrow;
     }
   }
 
-  // create
   Future<User> create({
     required String id,
     required String accountId,
     required String email,
   }) async {
     try {
-      print('creating user');
-
       final user = User(
         id: id,
         accountId: accountId,
@@ -41,11 +37,7 @@ class UserService {
         updatedAt: DateTime.now(),
       );
 
-      await _usersCollection.doc(id).set(user.toMap());
-
-      print('user created');
-
-      return user;
+      return await _repository.create(user, id);
     } catch (e) {
       logger.i('Error creating user: $e');
       rethrow;
@@ -54,7 +46,7 @@ class UserService {
 
   Future<void> update(User user) async {
     try {
-      await _usersCollection.doc(user.id).update(user.toMap());
+      await _repository.update(user);
     } catch (e) {
       logger.i('Error updating user: $e');
       rethrow;
@@ -91,7 +83,7 @@ class UserService {
         updatedAt: DateTime.now(),
       );
 
-      await _usersCollection.doc(inviteToken).set(user.toMap());
+      await _repository.create(user, inviteToken);
 
       // TODO: Send invitation email with verification code
       // This would typically be handled by a Cloud Function
@@ -104,20 +96,12 @@ class UserService {
   }
 
   Future<User?> findFirstBy(Map<String, dynamic> filters) async {
-    Query<Map<String, dynamic>> query = _usersCollection;
-
-    filters.forEach((field, value) {
-      query = query.where(field, isEqualTo: value);
-    });
-
-    final querySnapshot = await query.get();
-
-    if (querySnapshot.docs.isEmpty) {
-      return null;
+    try {
+      return await _repository.findFirst(filters);
+    } catch (e) {
+      logger.e('Error finding user: $e');
+      rethrow;
     }
-
-    final userDoc = querySnapshot.docs.first;
-    return User.fromMap({...userDoc.data(), 'id': userDoc.id});
   }
 
   /// Accepts an invitation using verification code
@@ -145,9 +129,10 @@ class UserService {
         throw Exception('Invitation not found');
       }
 
-      await _usersCollection
-          .doc(user.id)
-          .set({'status': UserStatus.active, verificationCode: null});
+      await _repository.update(user.copyWith(
+        status: UserStatus.active,
+        verificationCode: null,
+      ));
     } catch (e) {
       logger.e('Error accepting invitation: $e');
       rethrow;
@@ -157,7 +142,7 @@ class UserService {
   /// Deletes a user document
   Future<void> delete(String userId) async {
     try {
-      await _usersCollection.doc(userId).delete();
+      await _repository.delete(userId);
     } catch (e) {
       logger.e('Error deleting user: $e');
       rethrow;
@@ -168,15 +153,6 @@ class UserService {
   Stream<List<User>> getAll({required String accountId}) {
     logger.d('Creating users query for account: $accountId');
 
-    return _usersCollection
-        .where('accountId', isEqualTo: accountId)
-        .snapshots()
-        .map((snapshot) {
-      logger
-          .d('Received users snapshot with ${snapshot.docs.length} documents');
-      return snapshot.docs
-          .map((doc) => User.fromMap({...doc.data(), 'id': doc.id}))
-          .toList();
-    });
+    return _repository.getAllStream({'accountId': accountId});
   }
 }
