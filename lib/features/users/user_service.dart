@@ -31,6 +31,7 @@ class UserService {
   }) async {
     try {
       print('creating user');
+
       final user = User(
         id: id,
         accountId: accountId,
@@ -102,13 +103,12 @@ class UserService {
     }
   }
 
-  /// Accepts an invitation using verification code
-  Future<User?> verifyInvitationCode({
-    required String verificationCode,
-  }) async {
-    final query = _usersCollection
-        .where('status', isEqualTo: UserStatus.invited.toJson())
-        .where('verificationCode', isEqualTo: verificationCode);
+  Future<User?> findFirstBy(Map<String, dynamic> filters) async {
+    Query<Map<String, dynamic>> query = _usersCollection;
+
+    filters.forEach((field, value) {
+      query = query.where(field, isEqualTo: value);
+    });
 
     final querySnapshot = await query.get();
 
@@ -120,29 +120,34 @@ class UserService {
     return User.fromMap({...userDoc.data(), 'id': userDoc.id});
   }
 
+  /// Accepts an invitation using verification code
+  Future<User?> verifyInvitationCode({
+    required String verificationCode,
+  }) async {
+    return findFirstBy({
+      'status': UserStatus.invited.toJson(),
+      'verificationCode': verificationCode,
+    });
+  }
+
   /// Accepts an invitation for a user
   Future<void> acceptInvitation({
-    required String inviteToken,
-    required String newUserId,
+    required String verificationCode,
+    required String password,
   }) async {
     try {
-      final userDoc = await _usersCollection.doc(inviteToken).get();
+      final user = await findFirstBy({
+        'status': UserStatus.invited.toJson(),
+        'verificationCode': verificationCode,
+      });
 
-      if (!userDoc.exists) {
+      if (user == null) {
         throw Exception('Invitation not found');
       }
 
-      final userData = userDoc.data()!;
-      userData['id'] = newUserId;
-      userData['status'] = UserStatus.active.toJson();
-      userData['updatedAt'] = DateTime.now().toIso8601String();
-      userData['verificationCode'] = null; // Clear the verification code
-
-      // Create new document with the Firebase Auth UID
-      await _usersCollection.doc(newUserId).set(userData);
-
-      // Delete the temporary invitation document
-      await _usersCollection.doc(inviteToken).delete();
+      await _usersCollection
+          .doc(user.id)
+          .set({'status': UserStatus.active, verificationCode: null});
     } catch (e) {
       logger.e('Error accepting invitation: $e');
       rethrow;

@@ -96,32 +96,26 @@ class AuthController extends _$AuthController {
     }
   }
 
-  Future<void> verifyInvitation({
-    required String email,
-    required String verificationCode,
+  Future<void> acceptInvitation({
+    required UserModel.User user,
     required String password,
   }) async {
-    // TODO: Implement verification and account setup
-    // Should verify the code and set up the user's account with the provided password
-  }
+    final userService = ref.read(userServiceProvider);
 
-  Future<void> sendLoginLink(String email) async {
-    try {
-      // Generate a sign-in link with email
-      final actionCodeSettings = ActionCodeSettings(
-        url:
-            'https://your-app.page.link/login', // Replace with your dynamic link
-        handleCodeInApp: true,
-        iOSBundleId: 'com.example.app', // Replace with your bundle ID
-        androidPackageName: 'com.example.app', // Replace with your package name
-      );
+    // Create Firebase Auth user
+    final userCredential = await _auth.createUserWithEmailAndPassword(
+      email: user.email!,
+      password: password,
+    );
 
-      await _auth.sendSignInLinkToEmail(
-        email: email,
-        actionCodeSettings: actionCodeSettings,
-      );
-    } catch (e) {
-      throw 'Failed to send login link: $e';
-    }
+    // Create user in Firestore
+    await userService.create(
+      id: userCredential.user!.uid,
+      accountId: user.accountId,
+      email: user.email!,
+    );
+
+    // Delete the invited user
+    await userService.delete(user.id);
   }
 }

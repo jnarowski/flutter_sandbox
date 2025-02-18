@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import '../../core/auth/auth_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/models/user.dart';
 
 class JoinAccountForm extends ConsumerStatefulWidget {
   const JoinAccountForm({super.key});
@@ -15,6 +16,7 @@ class _JoinAccountFormState extends ConsumerState<JoinAccountForm> {
   bool _isLoading = false;
   String? _foundEmail;
   bool _isTokenVerified = false;
+  User? _foundUser;
 
   @override
   void dispose() {
@@ -37,6 +39,7 @@ class _JoinAccountFormState extends ConsumerState<JoinAccountForm> {
               );
 
       setState(() {
+        _foundUser = user;
         _foundEmail = user?.email;
         _isTokenVerified = true;
       });
@@ -77,9 +80,8 @@ class _JoinAccountFormState extends ConsumerState<JoinAccountForm> {
     });
 
     try {
-      await ref.read(authControllerProvider.notifier).verifyInvitation(
-            email: _foundEmail!,
-            verificationCode: _verificationCodeController.text,
+      await ref.read(authControllerProvider.notifier).acceptInvitation(
+            user: _foundUser!,
             password: _passwordController.text,
           );
 
