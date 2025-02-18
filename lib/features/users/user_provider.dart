@@ -1,17 +1,16 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../core/models/user.dart';
 import 'user_service.dart';
 
-final userServiceProvider = Provider<UserService>((ref) {
-  return UserService();
-});
+part 'user_provider.g.dart';
 
-final usersStreamProvider = StreamProvider<List<User>>((ref) {
-  final usersCollection = FirebaseFirestore.instance.collection('users');
-  return usersCollection.snapshots().map((snapshot) {
-    return snapshot.docs
-        .map((doc) => User.fromMap({'id': doc.id, ...doc.data()}))
-        .toList();
-  });
+@riverpod
+UserService userService(ref) {
+  return UserService();
+}
+
+final usersStreamProvider =
+    StreamProvider.family<List<User>, String>((ref, accountId) {
+  final userService = ref.watch(userServiceProvider);
+  return userService.getAll(accountId: accountId);
 });

@@ -4,6 +4,10 @@ enum UserStatus {
   active,
   disabled,
   invited;
+
+  String toJson() => name;
+
+  static UserStatus fromJson(String json) => UserStatus.values.byName(json);
 }
 
 class User {
@@ -36,7 +40,7 @@ class User {
       accountId: map['accountId'] ?? '',
       name: map['name'] as String?,
       email: map['email'] as String?,
-      status: map['status'] as UserStatus?,
+      status: UserStatus.fromJson(map['status'] as String),
       inviteToken: map['inviteToken'] as String?,
       invitedById: map['invitedById'] as String?,
       createdAt: TimestampParser.parseTimestamp(map['createdAt']),
@@ -50,7 +54,7 @@ class User {
       'email': email,
       'name': name,
       'accountId': accountId,
-      'status': status,
+      'status': status?.toJson(),
       'inviteToken': inviteToken,
       'invitedById': invitedById,
       'createdAt': createdAt?.toIso8601String(),

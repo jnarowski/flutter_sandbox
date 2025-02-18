@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/providers/app_provider.dart';
 import 'user_provider.dart';
 
 class InviteUserDialog extends ConsumerStatefulWidget {
@@ -10,7 +11,6 @@ class InviteUserDialog extends ConsumerStatefulWidget {
 }
 
 class _InviteUserDialogState extends ConsumerState<InviteUserDialog> {
-  final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   bool _isLoading = false;
 
@@ -29,15 +29,20 @@ class _InviteUserDialogState extends ConsumerState<InviteUserDialog> {
 
     try {
       final userService = ref.read(userServiceProvider);
+      final appState = ref.read(appProvider);
 
-      // TODO: Get these from your auth/account providers
-      const accountId = 'your-account-id';
-      const invitedById = 'current-user-id';
+      // Get IDs from app state
+      final accountId = appState.account?.id;
+      final currentUserId = appState.user?.id;
+
+      if (accountId == null || currentUserId == null) {
+        throw Exception('Missing account or user ID');
+      }
 
       await userService.invite(
         email: _emailController.text,
         accountId: accountId,
-        invitedById: invitedById,
+        invitedById: currentUserId,
       );
 
       if (mounted) {

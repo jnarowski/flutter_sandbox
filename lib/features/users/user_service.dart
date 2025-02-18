@@ -28,18 +28,26 @@ class UserService {
     required String accountId,
     required String email,
   }) async {
-    final user = User(
-      id: id,
-      accountId: accountId,
-      email: email,
-      status: UserStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+    try {
+      print('creating user');
+      final user = User(
+        id: id,
+        accountId: accountId,
+        email: email,
+        status: UserStatus.active,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
 
-    _usersCollection.doc(id).set(user.toMap());
+      await _usersCollection.doc(id).set(user.toMap());
 
-    return user;
+      print('user created');
+
+      return user;
+    } catch (e) {
+      logger.i('Error creating user: $e');
+      rethrow;
+    }
   }
 
   Future<void> update(User user) async {
@@ -99,7 +107,7 @@ class UserService {
 
       final userData = userDoc.data()!;
       userData['id'] = newUserId;
-      userData['status'] = 'active';
+      userData['status'] = UserStatus.active.toJson();
       userData['updatedAt'] = DateTime.now().toIso8601String();
 
       // Create new document with the Firebase Auth UID
@@ -121,5 +129,21 @@ class UserService {
       logger.e('Error deleting user: $e');
       rethrow;
     }
+  }
+
+  /// Gets a stream of all users for a specific account
+  Stream<List<User>> getAll({required String accountId}) {
+    logger.d('Creating users query for account: $accountId');
+
+    return _usersCollection
+        .where('accountId', isEqualTo: accountId)
+        .snapshots()
+        .map((snapshot) {
+      logger
+          .d('Received users snapshot with ${snapshot.docs.length} documents');
+      return snapshot.docs
+          .map((doc) => User.fromMap({...doc.data(), 'id': doc.id}))
+          .toList();
+    });
   }
 }

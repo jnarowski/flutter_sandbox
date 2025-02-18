@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/user.dart';
+import '../../core/providers/app_provider.dart';
+import '../../core/services/logger.dart';
 import 'user_provider.dart';
 import 'invite_user_dialog.dart';
 
@@ -9,7 +11,36 @@ class TeamScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final usersAsync = ref.watch(usersStreamProvider);
+    // Watch both account ID and user ID
+    final appState = ref.watch(appProvider.select((state) => (
+          accountId: state.account?.id,
+          userId: state.user?.id,
+        )));
+
+    logger.d(
+        'Building TeamScreen, account: ${appState.accountId}, user: ${appState.userId}');
+
+    if (appState.accountId == null || appState.userId == null) {
+      logger.d('No account or user available yet');
+      return const CupertinoPageScaffold(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CupertinoActivityIndicator(),
+              SizedBox(height: 16),
+              Text('Loading...'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Now we know accountId is not null
+    final userStream = ref.watch(usersStreamProvider(appState.accountId!));
+
+    logger.d(
+        'UserStream state: ${userStream.valueOrNull != null ? 'has data' : 'no data'}');
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
@@ -21,14 +52,27 @@ class TeamScreen extends ConsumerWidget {
         ),
       ),
       child: SafeArea(
-        child: usersAsync.when(
-          loading: () => const Center(child: CupertinoActivityIndicator()),
-          error: (error, stack) => Center(child: Text('Error: $error')),
+        child: userStream.when(
+          loading: () => const Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CupertinoActivityIndicator(),
+                SizedBox(height: 16),
+                Text('Loading team members...'),
+              ],
+            ),
+          ),
+          error: (error, stack) {
+            logger.e('Error loading users: $error\n$stack');
+            return Center(child: Text('Error: $error'));
+          },
           data: (users) {
+            logger.d('Loaded ${users.length} users');
             final activeUsers =
-                users.where((u) => u.status == 'active').toList();
+                users.where((u) => u.status == UserStatus.active).toList();
             final invitedUsers =
-                users.where((u) => u.status == 'invited').toList();
+                users.where((u) => u.status == UserStatus.invited).toList();
 
             return ListView(
               padding: const EdgeInsets.all(16),
