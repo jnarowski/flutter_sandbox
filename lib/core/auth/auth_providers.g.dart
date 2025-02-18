@@ -22,11 +22,11 @@ final authServiceProvider = Provider<AuthService>.internal(
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
 typedef AuthServiceRef = ProviderRef<AuthService>;
-String _$authStateChangesHash() => r'a0ecbff78b6fe70c64038a6d3125aad8b7da5176';
+String _$authStateChangesHash() => r'9881b26ae0634360e31abd6c6d4a015ebc2f9a0d';
 
 /// See also [authStateChanges].
 @ProviderFor(authStateChanges)
-final authStateChangesProvider = StreamProvider<User?>.internal(
+final authStateChangesProvider = StreamProvider<AuthUser?>.internal(
   authStateChanges,
   name: r'authStateChangesProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -38,6 +38,6 @@ final authStateChangesProvider = StreamProvider<User?>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef AuthStateChangesRef = StreamProviderRef<User?>;
+typedef AuthStateChangesRef = StreamProviderRef<AuthUser?>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

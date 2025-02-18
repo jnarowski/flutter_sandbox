@@ -1,14 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_sandbox/core/auth/auth_providers.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
 
-class SignupForm extends StatefulWidget {
+class SignupForm extends ConsumerStatefulWidget {
   const SignupForm({super.key});
 
   @override
-  State<SignupForm> createState() => _SignupFormState();
+  ConsumerState<SignupForm> createState() => _SignupFormState();
 }
 
-class _SignupFormState extends State<SignupForm> {
+class _SignupFormState extends ConsumerState<SignupForm> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -33,8 +35,10 @@ class _SignupFormState extends State<SignupForm> {
     }
 
     setState(() => _isLoading = true);
+
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final authService = ref.read(authServiceProvider);
+      await authService.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );

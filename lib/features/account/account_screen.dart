@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_sandbox/core/auth/auth_providers.dart';
 import 'package:flutter_sandbox/features/users/team_screen.dart';
 import 'package:flutter_sandbox/core/providers/app_provider.dart';
 
@@ -10,6 +10,7 @@ class AccountScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(appProvider).user;
+    final authService = ref.watch(authServiceProvider);
     final email = user?.email ?? 'No email';
 
     return CupertinoPageScaffold(
@@ -53,7 +54,7 @@ class AccountScreen extends ConsumerWidget {
                 color: CupertinoColors.destructiveRed,
                 child: const Text('Logout'),
                 onPressed: () async {
-                  await FirebaseAuth.instance.signOut();
+                  await authService.signOut();
                 },
               ),
             ),
