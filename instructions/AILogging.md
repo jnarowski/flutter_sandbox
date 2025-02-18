@@ -1,42 +1,50 @@
-# AI Logging 
+# AI Logging
 
-## Dependencies 
+Use voice and LLMs to help users log activities much faster than using a complex form. 
+
+## Dependencies
 
 - intelligence
 - speech_to_text
-
-## Overview
-
-Use voice and LLMs to help users log activities much faster than using a complex form. 
 
 ## Core Features
 
 ### LLM log text parsing service
 
-See instructions/Logging.md for details on possible logging types, database structure etc. use this file to generate examples for the prompt. 
+This service will parse text from user and turn it into a structured json Log response.
+See `instructions/Logging.md` for details log types, db schema etc. Use this file to generate examples for the prompt.
 
-- Create an llm_logging_service that has the system prompt and all the specialized logic. It will use core/services/llm/llm_service internally to call llm apis. 
-- Use this service to parse text from user and turn it into a structured json Log response
-- Write a prompt to support all the log types and turn the result into structured json. 
-- Provide the prompt with current time and the users time zone. 
+- Create a `features/logs/llm_logging_service` which contains the system prompt and all the specialized logic. It will use `lib/core/ai/llm_service.dart` internally to call llm apis.
+- Write a system prompt for llm_logging_service to help turn text from the user into structured json.
+- Provide the prompt with current time and the users time zone.
 
 #### Examples
 
-Input: Oliver drank 5oz of formula at 4pm 
-Output: {}
+Input: Oliver drank 5oz of formula at 4pm
+Output: {
+    "kidId": "xxxxx",
+    "type": "formula",
+    "amount": 5,
+    "startAt": "2024-01-01T16:00:00Z",
+    "endAt": "2024-01-01T16:05:00Z"
+}
 
-Input: Oliver slept for 30 mins at 4pm 
-Output: {}
+Input: Oliver slept for 30 mins at 4pm
+Output: {
+    "kidId": "xxxxx",
+    "type": "sleep",
+    "duration": 30,
+    "startAt": "2024-01-01T16:00:00Z",
+    "endAt": "2024-01-01T16:30:00Z"
+}
 
 Input: Oliver had 2.5ml of Tylenol at 3:30
-Output: {}
-
-The key attributes to extract are:
-
-- kid
-- type
-- startAt
-- endAt (if relevant)
+Output: {
+    "kidId": "xxxxx",
+    "type": "medicine",
+    "amount": 2.5,
+    "startAt": "2024-01-01T15:30:00Z",
+}
 
 ### Logging using AppIntents
 
@@ -48,18 +56,17 @@ The key attributes to extract are:
 
 The user can ask the app information from the logs using app intents and Apple shortcuts to help them understand how the day is going. 
 
-#### Examples 
+#### Examples
 
 - When did Oliver eat last?
 - How much did he eat today?
 - What was the last medicine he had?
 
-### Logging in app 
+### Logging in app
 
-The user will be able to open a modal and use voice (or type) which will use the logging llm service and system prompt to turn this into a log. 
+The user will be able to open a modal and use voice (or type) which will use the logging llm service and system prompt to turn this into a log.
 
-- We will need a voice service to handle voice to text 
-- The voice to text should start listening when the modal is opened 
-- When the modal is closed the service should stop voice to text and clean it up 
-- We need a service singleton that governs starting and stopping the voice to text
-- The user will see voice text in an input and also the expected structured output as a preview. It will update when the user presses generate button 
+- Create `core/services/voice_service.dart` which will leverage speech_to_text to listen to the user and convert it to text.
+- The voice to text should start listening when the modal is opened
+- When the modal is closed the service should stop voice to text and clean it up
+- The user will see voice text in an input and also the expected structured output as a preview. It will update when the user presses generate button
