@@ -1,7 +1,6 @@
 // lib/screens/login_screen.dart
 import 'package:flutter/cupertino.dart';
-import '../../core/auth/auth_controller.dart';
-import 'join_account_form.dart';
+import 'join_form.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'login_form.dart';
 
@@ -16,7 +15,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _navigateToJoinAccount() {
     Navigator.of(context).push(
       CupertinoPageRoute(
-        builder: (context) => const JoinAccountForm(),
+        builder: (context) => const JoinForm(),
       ),
     );
   }

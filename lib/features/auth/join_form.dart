@@ -1,16 +1,16 @@
 import 'package:flutter/cupertino.dart';
-import '../../core/auth/auth_controller.dart';
+import 'package:flutter_sandbox/core/auth/auth_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/models/user.dart';
+import 'package:flutter_sandbox/core/models/user.dart';
 
-class JoinAccountForm extends ConsumerStatefulWidget {
-  const JoinAccountForm({super.key});
+class JoinForm extends ConsumerStatefulWidget {
+  const JoinForm({super.key});
 
   @override
-  ConsumerState<JoinAccountForm> createState() => _JoinAccountFormState();
+  ConsumerState<JoinForm> createState() => _JoinAccountFormState();
 }
 
-class _JoinAccountFormState extends ConsumerState<JoinAccountForm> {
+class _JoinAccountFormState extends ConsumerState<JoinForm> {
   final _verificationCodeController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;

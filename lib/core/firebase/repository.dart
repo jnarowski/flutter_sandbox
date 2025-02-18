@@ -18,7 +18,7 @@ class FirebaseRepository<T extends BaseModel> {
     try {
       final doc = await _collection.doc(id).get();
       if (!doc.exists) return null;
-      return fromMap({'id': doc.id, ...doc.data()!});
+      return fromMap({...doc.data()!, 'id': doc.id});
     } catch (e) {
       logger.e('Error fetching document from $collectionName: $e');
       rethrow;
