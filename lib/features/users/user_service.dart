@@ -32,6 +32,7 @@ class UserService {
       id: id,
       accountId: accountId,
       email: email,
+      status: UserStatus.active,
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
@@ -65,7 +66,7 @@ class UserService {
         id: inviteToken, // We'll use this as temporary ID until they accept
         accountId: accountId,
         email: email,
-        status: 'invited',
+        status: UserStatus.invited,
         inviteToken: inviteToken,
         invitedById: invitedById,
         createdAt: DateTime.now(),
@@ -108,6 +109,16 @@ class UserService {
       await _usersCollection.doc(inviteToken).delete();
     } catch (e) {
       logger.e('Error accepting invitation: $e');
+      rethrow;
+    }
+  }
+
+  /// Deletes a user document
+  Future<void> delete(String userId) async {
+    try {
+      await _usersCollection.doc(userId).delete();
+    } catch (e) {
+      logger.e('Error deleting user: $e');
       rethrow;
     }
   }

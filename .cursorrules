@@ -20,4 +20,4 @@ I want to create a baby tracking app built in Flutter using Firebase for Authent
 
 - Please look for existing files and classes with the same or similar name before creating new ones.
 - Please work step by step and evaluate your work before moving on to the next step.
-
+- Please use the Cupertino widgets for the UI.

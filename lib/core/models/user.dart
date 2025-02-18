@@ -1,3 +1,11 @@
+import '../utils/timestamp_parser.dart';
+
+enum UserStatus {
+  active,
+  disabled,
+  invited;
+}
+
 class User {
   final String id;
   final String? email;
@@ -5,7 +13,8 @@ class User {
   final String accountId;
   final DateTime? createdAt;
   final DateTime? updatedAt;
-  final String? status; // 'active' or 'invited'
+  final UserStatus? status;
+
   final String? inviteToken;
   final String? invitedById;
 
@@ -27,13 +36,11 @@ class User {
       accountId: map['accountId'] ?? '',
       name: map['name'] as String?,
       email: map['email'] as String?,
-      status: map['status'] as String?,
+      status: map['status'] as UserStatus?,
       inviteToken: map['inviteToken'] as String?,
       invitedById: map['invitedById'] as String?,
-      createdAt:
-          map['createdAt'] != null ? DateTime.parse(map['createdAt']) : null,
-      updatedAt:
-          map['updatedAt'] != null ? DateTime.parse(map['updatedAt']) : null,
+      createdAt: TimestampParser.parseTimestamp(map['createdAt']),
+      updatedAt: TimestampParser.parseTimestamp(map['updatedAt']),
     );
   }
 
