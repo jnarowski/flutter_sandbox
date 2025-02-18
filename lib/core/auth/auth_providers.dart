@@ -1,5 +1,5 @@
 // lib/providers/auth_providers.dart
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_sandbox/core/firebase/auth.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'auth_service.dart';
 
@@ -13,20 +13,20 @@ AuthService authService(ref) {
 
 // Provider for auth state changes stream
 @Riverpod(keepAlive: true)
-Stream<User?> authStateChanges(ref) {
+Stream<AuthUser?> authStateChanges(ref) {
   final authService = ref.watch(authServiceProvider);
   return authService.authStateChanges;
 }
 
-final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
-  return FirebaseAuth.instance;
+final firebaseAuthProvider = Provider<Auth>((ref) {
+  return auth;
 });
 
-final authStateProvider = StreamProvider<User?>((ref) {
+final authStateProvider = StreamProvider<AuthUser?>((ref) {
   return ref.watch(firebaseAuthProvider).authStateChanges();
 });
 
 // Provides the current user synchronously
-final currentUserProvider = Provider<User?>((ref) {
+final currentUserProvider = Provider<AuthUser?>((ref) {
   return ref.watch(firebaseAuthProvider).currentUser;
 });

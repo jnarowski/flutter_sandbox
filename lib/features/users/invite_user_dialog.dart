@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/app_provider.dart';
 import 'user_provider.dart';
-// import 'package:cloud_functions/cloud_functions.dart';
+import 'package:flutter_sandbox/core/firebase/functions.dart';
 
 class InviteUserDialog extends ConsumerStatefulWidget {
   const InviteUserDialog({super.key});
@@ -31,8 +31,6 @@ class _InviteUserDialogState extends ConsumerState<InviteUserDialog> {
     try {
       final userService = ref.read(userServiceProvider);
       final appState = ref.read(appProvider);
-      // final functions = FirebaseFunctions.instance;
-
       final accountId = appState.account?.id;
       final currentUserId = appState.user?.id;
 
@@ -48,10 +46,10 @@ class _InviteUserDialogState extends ConsumerState<InviteUserDialog> {
 
       // Send the invitation email
       try {
-        // await functions.httpsCallable('sendInviteEmail').call({
-        //   'email': _emailController.text,
-        //   'verificationCode': user.verificationCode,
-        // });
+        await sendInviteEmail.call({
+          'email': _emailController.text,
+          'verificationCode': user.verificationCode,
+        });
       } catch (e) {
         print('Failed to send invitation email: $e');
         // Continue with showing the verification code even if email fails

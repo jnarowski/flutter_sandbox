@@ -1,18 +1,19 @@
 // lib/services/auth_service.dart
-import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_sandbox/core/firebase/auth.dart';
 import 'package:flutter_sandbox/core/services/logger.dart';
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final Auth _auth = auth;
 
   // Stream of auth state changes
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<AuthUser?> get authStateChanges => _auth.authStateChanges();
 
   // Get current user
-  User? get currentUser => _auth.currentUser;
+  AuthUser? get currentUser => _auth.currentUser;
 
   // Sign in with email and password
-  Future<UserCredential> signInWithEmailAndPassword({
+  Future<AuthUserCredential> signInWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -27,7 +28,7 @@ class AuthService {
   }
 
   // Sign up with email and password
-  Future<UserCredential> createUserWithEmailAndPassword({
+  Future<AuthUserCredential> createUserWithEmailAndPassword({
     required String email,
     required String password,
   }) async {
@@ -59,7 +60,7 @@ class AuthService {
 
   // Handle Firebase Auth exceptions
   Exception _handleAuthException(dynamic e) {
-    if (e is FirebaseAuthException) {
+    if (e is AuthUserException) {
       switch (e.code) {
         case 'user-not-found':
           return AuthException('No user found with this email');
