@@ -22,13 +22,14 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _startListening();
-    });
+    _startListening();
   }
 
   Future<void> _startListening() async {
     final voiceService = ref.read(voiceServiceProvider);
+    if (voiceService.isListening) {
+      await voiceService.stopListening();
+    }
     await voiceService.startListening(
       onTextUpdate: (text) {
         setState(() {
