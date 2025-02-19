@@ -4,6 +4,8 @@ import 'package:flutter_sandbox/core/providers/app_provider.dart';
 import 'package:flutter_sandbox/features/kids/kid_provider.dart';
 import 'package:flutter_sandbox/features/logs/llm_logging_provider.dart';
 import 'dart:convert';
+import 'package:flutter_sandbox/core/voice/voice_provider.dart';
+import 'package:flutter_sandbox/core/voice/widgets/voice_waveform.dart';
 
 class AILogDialog extends ConsumerStatefulWidget {
   const AILogDialog({super.key});
@@ -16,6 +18,36 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
   final TextEditingController _textController = TextEditingController();
   String? _result;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _startListening();
+    });
+  }
+
+  Future<void> _startListening() async {
+    final voiceService = ref.read(voiceServiceProvider);
+    await voiceService.startListening(
+      onTextUpdate: (text) {
+        setState(() {
+          _textController.text = text;
+        });
+        // Auto-process after speech pause
+        _processAIRequest();
+      },
+    );
+  }
+
+  @override
+  void deactivate() {
+    final voiceService = ref.read(voiceServiceProvider);
+    if (voiceService.isListening) {
+      voiceService.stopListening();
+    }
+    super.deactivate();
+  }
 
   @override
   void dispose() {
@@ -62,7 +94,15 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Text('Close'),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (mounted) {
+              final voiceService = ref.read(voiceServiceProvider);
+              if (voiceService.isListening) {
+                voiceService.stopListening();
+              }
+            }
+            Navigator.of(context).pop();
+          },
         ),
       ),
       child: SafeArea(
@@ -70,9 +110,11 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              const VoiceWaveform(),
+              const SizedBox(height: 16),
               CupertinoTextField(
                 controller: _textController,
-                placeholder: 'Enter your log text here...',
+                placeholder: 'Speak or type your log here...',
                 maxLines: 3,
               ),
               const SizedBox(height: 16),

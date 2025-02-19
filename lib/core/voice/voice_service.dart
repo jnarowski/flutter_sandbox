@@ -1,0 +1,66 @@
+import 'dart:async';
+import 'dart:math';
+import 'package:flutter/foundation.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+
+class VoiceService {
+  final SpeechToText _speechToText = SpeechToText();
+  bool _isInitialized = false;
+  bool _disposed = false;
+
+  final _soundLevelController = StreamController<double>.broadcast();
+  Stream<double> get soundLevelStream => _soundLevelController.stream;
+
+  void Function(String)? onTextUpdate;
+
+  Future<bool> initialize() async {
+    if (_isInitialized) return true;
+
+    _isInitialized = await _speechToText.initialize(
+      onError: (error) => debugPrint('Speech to text error: $error'),
+      onStatus: (status) => debugPrint('Speech to text status: $status'),
+      debugLogging: kDebugMode,
+    );
+
+    return _isInitialized;
+  }
+
+  Future<void> startListening({
+    required void Function(String) onTextUpdate,
+  }) async {
+    if (!_isInitialized) {
+      final initialized = await initialize();
+      if (!initialized) return;
+    }
+
+    this.onTextUpdate = onTextUpdate;
+
+    await _speechToText.listen(
+      onResult: (result) {
+        if (result.finalResult) {
+          onTextUpdate(result.recognizedWords);
+        }
+      },
+      onSoundLevelChange: (level) {
+        _soundLevelController.add(level);
+      },
+      pauseFor: const Duration(seconds: 2),
+      cancelOnError: false,
+      partialResults: true,
+    );
+  }
+
+  Future<void> stopListening() async {
+    if (_disposed) return;
+    await _speechToText.stop();
+    _soundLevelController.add(0);
+  }
+
+  void dispose() {
+    _disposed = true;
+    _speechToText.stop();
+    _soundLevelController.close();
+  }
+
+  bool get isListening => _speechToText.isListening;
+}
