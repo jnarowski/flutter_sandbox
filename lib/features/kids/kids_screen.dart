@@ -85,7 +85,7 @@ class KidListTile extends ConsumerWidget {
 
         await ref
             .read(accountServiceProvider)
-            .updateCurrentKid(account.id, kid.id!);
+            .updateCurrentKid(account.id, kid.id);
       },
       title: Text(kid.name),
       subtitle: Text(

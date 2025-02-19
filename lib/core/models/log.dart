@@ -1,6 +1,35 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'base_model.dart';
 
+enum LogType {
+  activity,
+  bathroom,
+  feeding,
+  growth,
+  medicine,
+  pumping,
+  sleep,
+  solids;
+
+  String toJson() => name;
+
+  static LogType fromJson(String json) => LogType.values.byName(json);
+}
+
+// Common units
+enum LogUnit {
+  oz,
+  ml,
+  drops,
+  tsp,
+  minutes,
+  hours,
+  inches,
+  cm,
+  lbs,
+  kg,
+}
+
 class Log extends BaseModel {
   @override
   String? id;
@@ -93,6 +122,7 @@ class Log extends BaseModel {
     return null;
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -101,8 +131,8 @@ class Log extends BaseModel {
       'type': type,
       'category': category,
       'subCategory': subCategory,
-      'startAt': startAt,
-      'endAt': endAt,
+      'startAt': startAt.toIso8601String(),
+      'endAt': endAt?.toIso8601String(),
       'amount': amount,
       'unit': unit,
       'notes': notes,
@@ -113,30 +143,4 @@ class Log extends BaseModel {
           updatedAt != null ? Timestamp.fromDate(updatedAt!) : Timestamp.now(),
     };
   }
-}
-
-// Enums for type validation
-enum LogType {
-  feeding,
-  medicine,
-  sleep,
-  solids,
-  pumping,
-  bathroom,
-  activity,
-  growth,
-}
-
-// Common units
-enum LogUnit {
-  oz,
-  ml,
-  drops,
-  tsp,
-  minutes,
-  hours,
-  inches,
-  cm,
-  lbs,
-  kg,
 }

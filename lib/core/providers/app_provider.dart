@@ -21,7 +21,7 @@ class AppState {
   AppState copyWith({Account? account, User? user, Kid? currentKid}) {
     return AppState(
       account: account ?? this.account,
-      authUser: authUser ?? this.authUser,
+      authUser: authUser ?? authUser,
       currentKid: currentKid ?? this.currentKid,
       user: user ?? this.user,
     );

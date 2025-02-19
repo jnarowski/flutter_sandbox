@@ -1,3 +1,4 @@
+import '../llm_options.dart';
 import '../llm_response.dart';
 
 abstract class BaseLLMProvider {
@@ -5,8 +6,5 @@ abstract class BaseLLMProvider {
 
   BaseLLMProvider({required this.apiKey});
 
-  Future<LLMResponse> processMessage(
-    String message,
-    Map<String, dynamic>? options,
-  );
+  Future<LLMResponse> processMessage(String message, LLMOptions? options);
 }

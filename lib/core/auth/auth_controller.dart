@@ -100,7 +100,7 @@ class AuthController extends _$AuthController {
 
     // Create Firebase Auth user
     final userCredential = await _auth.createUserWithEmailAndPassword(
-      email: user.email!,
+      email: user.email,
       password: password,
     );
 
@@ -108,7 +108,7 @@ class AuthController extends _$AuthController {
     await userService.create(
       id: userCredential.user!.uid,
       accountId: user.accountId,
-      email: user.email!,
+      email: user.email,
     );
 
     // Delete the invited user

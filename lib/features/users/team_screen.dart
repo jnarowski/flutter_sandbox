@@ -16,7 +16,7 @@ class TeamScreen extends ConsumerWidget {
     final accountId = appState.account?.id;
     final userId = appState.user?.id;
 
-    logger.d('Building TeamScreen, account: ${accountId}, user: ${userId}');
+    logger.d('Building TeamScreen, account: $accountId, user: $userId');
 
     if (accountId == null || userId == null) {
       logger.d('No account or user available yet');

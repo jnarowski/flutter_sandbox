@@ -1,6 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../core/models/kid.dart';
-import '../../core/firebase/repository.dart';
+import 'package:flutter_sandbox/core/models/kid.dart';
+import 'package:flutter_sandbox/core/firebase/repository.dart';
 
 class KidService {
   final FirebaseRepository<Kid> _repository;
@@ -15,7 +14,11 @@ class KidService {
     return _repository.get(id);
   }
 
-  Stream<List<Kid>> getAll(String accountId) {
+  Future<List<Kid>> getAll(String accountId) {
+    return _repository.getAll({'accountId': accountId});
+  }
+
+  Stream<List<Kid>> getAllStream(String accountId) {
     return _repository.getAllStream({'accountId': accountId});
   }
 

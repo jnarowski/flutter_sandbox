@@ -5,6 +5,7 @@ import 'package:flutter_sandbox/features/logs/log_provider.dart';
 import 'widgets/log_form.dart';
 import 'widgets/log_list_tile.dart';
 import 'package:flutter_sandbox/core/models/log.dart';
+import 'widgets/ai_log_dialog.dart';
 
 // State provider for selected week
 final selectedWeekProvider = StateProvider<DateTime>((ref) => DateTime.now());
@@ -26,9 +27,20 @@ class LogsScreen extends ConsumerWidget {
     final selectedWeek = ref.watch(selectedWeekProvider);
 
     return CupertinoPageScaffold(
-      navigationBar: const CupertinoNavigationBar(
-        middle: Text('Activities'),
-        trailing: AddLogButton(),
+      navigationBar: CupertinoNavigationBar(
+        middle: const Text('Activities'),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => _showAIDialog(context),
+              child: const Icon(CupertinoIcons.wand_stars),
+            ),
+            const SizedBox(width: 8),
+            const AddLogButton(),
+          ],
+        ),
       ),
       child: SafeArea(
         child: Column(
@@ -178,6 +190,13 @@ class LogsScreen extends ConsumerWidget {
     return start1.year == start2.year &&
         start1.month == start2.month &&
         start1.day == start2.day;
+  }
+
+  void _showAIDialog(BuildContext context) {
+    showCupertinoModalPopup(
+      context: context,
+      builder: (context) => const AILogDialog(),
+    );
   }
 }
 

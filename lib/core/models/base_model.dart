@@ -6,6 +6,6 @@ abstract class BaseModel {
   // Optional but useful for debugging
   @override
   String toString() {
-    return '${runtimeType.toString()}';
+    return runtimeType.toString();
   }
 }

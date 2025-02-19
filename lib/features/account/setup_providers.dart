@@ -25,7 +25,7 @@ final createFirstKidProvider = Provider.autoDispose((ref) => ({
 
       final newKid = await kidService.create(kid);
 
-      await accountService.updateCurrentKid(accountId, newKid.id!);
+      await accountService.updateCurrentKid(accountId, newKid.id);
 
       await ref.read(appProvider.notifier).setCurrentKid(newKid);
     });

@@ -12,7 +12,7 @@ KidService kidService(ref) {
 final kidStreamProvider =
     StreamProvider.family<List<Kid>, String>((ref, accountId) {
   final kidService = ref.watch(kidServiceProvider);
-  return kidService.getAll(accountId);
+  return kidService.getAllStream(accountId);
 });
 
 @riverpod

@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'core/auth/auth_gate_screen.dart';
 import 'core/screens/app_init_gate.dart';
 import 'core/screens/app_screen.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,6 +24,8 @@ void main() async {
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
+
+  tz.initializeTimeZones();
 
   runApp(const ProviderScope(child: MyApp()));
 }
