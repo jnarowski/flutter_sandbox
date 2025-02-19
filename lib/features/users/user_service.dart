@@ -13,15 +13,6 @@ class UserService {
           fromMap: User.fromMap,
         );
 
-  Future<User?> fetch(String userId) async {
-    try {
-      return await _repository.get(userId);
-    } catch (e) {
-      logger.i('Error fetching user: $e');
-      rethrow;
-    }
-  }
-
   Future<User> create({
     required String id,
     required String accountId,
@@ -44,6 +35,22 @@ class UserService {
     }
   }
 
+  Future<User?> fetch(String userId) async {
+    try {
+      return await _repository.get(userId);
+    } catch (e) {
+      logger.i('Error fetching user: $e');
+      rethrow;
+    }
+  }
+
+  /// Gets a stream of all users for a specific account
+  Stream<List<User>> getAll({required String accountId}) {
+    logger.d('Creating users query for account: $accountId');
+
+    return _repository.getAllStream({'accountId': accountId});
+  }
+
   Future<void> update(User user) async {
     try {
       await _repository.update(user);
@@ -51,12 +58,6 @@ class UserService {
       logger.i('Error updating user: $e');
       rethrow;
     }
-  }
-
-  String _generateVerificationCode() {
-    final random = Random();
-    return (100000 + random.nextInt(900000))
-        .toString(); // Generates 6-digit code
   }
 
   /// Invites a new user to join the account
@@ -149,10 +150,9 @@ class UserService {
     }
   }
 
-  /// Gets a stream of all users for a specific account
-  Stream<List<User>> getAll({required String accountId}) {
-    logger.d('Creating users query for account: $accountId');
-
-    return _repository.getAllStream({'accountId': accountId});
+  String _generateVerificationCode() {
+    final random = Random();
+    return (100000 + random.nextInt(900000))
+        .toString(); // Generates 6-digit code
   }
 }

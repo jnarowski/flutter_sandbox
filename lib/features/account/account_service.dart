@@ -1,62 +1,62 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:uuid/uuid.dart';
 import 'package:flutter_sandbox/core/models/account.dart';
 import 'package:flutter_sandbox/core/services/logger.dart';
 import 'package:flutter_sandbox/features/kids/kid_service.dart';
 import 'package:flutter_sandbox/core/models/kid.dart';
+import 'package:flutter_sandbox/core/firebase/repository.dart';
+import 'package:uuid/uuid.dart';
 
 class AccountService {
-  final CollectionReference<Map<String, dynamic>> _accountsCollection;
+  final FirebaseRepository<Account> _repository;
 
   AccountService()
-      : _accountsCollection = FirebaseFirestore.instance.collection('accounts');
+      : _repository = FirebaseRepository<Account>(
+          collectionName: 'accounts',
+          fromMap: Account.fromMap,
+        );
 
   Future<Account?> fetch(String accountId) async {
     try {
-      final doc = await _accountsCollection.doc(accountId).get();
-      if (!doc.exists) return null;
-
-      return Account.fromMap({'id': doc.id, ...doc.data()!});
+      return await _repository.get(accountId);
     } catch (e) {
       logger.i('Error fetching account: $e');
       rethrow;
     }
   }
 
-  // create
-  // right now we don't have any fields for the account
   Future<Account> create() async {
-    final account = Account(
-      id: const Uuid().v4(),
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+    try {
+      final account = Account(
+        id: const Uuid().v4(),
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
 
-    // Create the account document
-    // FIXME: we can't await this because it hangs and never returns
-    _accountsCollection.doc(account.id).set(account.toMap());
-
-    return account;
+      return await _repository.create(account);
+    } catch (e) {
+      logger.i('Error creating account: $e');
+      rethrow;
+    }
   }
 
-  // update
   Future<Account> update(Account account) async {
-    final updates = {
-      'currentKidId': account.currentKidId,
-      'updatedAt': DateTime.now(),
-    };
-
-    await _accountsCollection.doc(account.id).update(updates);
-    final doc = await _accountsCollection.doc(account.id).get();
-
-    return Account.fromMap({'id': doc.id, ...doc.data()!});
+    try {
+      await _repository.update(account);
+      return (await _repository.get(account.id))!;
+    } catch (e) {
+      logger.i('Error updating account: $e');
+      rethrow;
+    }
   }
 
   Future<void> updateCurrentKid(String accountId, String kidId) async {
-    await _accountsCollection.doc(accountId).update({
-      'currentKidId': kidId,
-      'updatedAt': FieldValue.serverTimestamp(),
-    });
+    try {
+      final account = Account(
+          id: accountId, currentKidId: kidId, updatedAt: DateTime.now());
+      await _repository.update(account);
+    } catch (e) {
+      logger.i('Error updating current kid: $e');
+      rethrow;
+    }
   }
 
   Future<Kid> createFirstKid({
@@ -76,7 +76,7 @@ class AccountService {
     );
 
     final newKid = await kidService.create(kid);
-    await updateCurrentKid(accountId, newKid.id!);
+    await updateCurrentKid(accountId, newKid.id);
 
     return newKid;
   }

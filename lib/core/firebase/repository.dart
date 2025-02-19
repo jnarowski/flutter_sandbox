@@ -27,8 +27,8 @@ class FirebaseRepository<T extends BaseModel> {
 
   Future<T> create(T item) async {
     try {
-      final docRef = _collection.doc(item.id);
       final data = item.toMap();
+      final docRef = _collection.doc(item.id);
       await docRef.set(data);
       return item;
     } catch (e) {
@@ -39,7 +39,8 @@ class FirebaseRepository<T extends BaseModel> {
 
   Future<void> update(T item) async {
     try {
-      await _collection.doc(item.id).update(item.toMap());
+      final data = item.toMap();
+      await _collection.doc(item.id).update(data);
     } catch (e) {
       logger.e('Error updating document in $collectionName: $e');
       rethrow;

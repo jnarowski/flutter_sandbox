@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'base_model.dart';
 
-class Account {
+class Account extends BaseModel {
+  @override
   final String id;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -27,6 +29,7 @@ class Account {
     );
   }
 
+  @override
   Map<String, dynamic> toMap() {
     return {
       'id': id,
@@ -35,5 +38,19 @@ class Account {
       'createdAt': createdAt != null ? Timestamp.fromDate(createdAt!) : null,
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
     };
+  }
+
+  Account copyWith({
+    String? id,
+    String? currentKidId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Account(
+      id: id ?? this.id,
+      currentKidId: currentKidId ?? this.currentKidId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
   }
 }
