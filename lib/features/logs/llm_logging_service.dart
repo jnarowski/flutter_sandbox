@@ -3,7 +3,6 @@ import 'package:flutter_sandbox/core/ai/llm_service.dart';
 import 'package:flutter_sandbox/core/models/kid.dart';
 import 'package:flutter_sandbox/core/models/log.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter_sandbox/features/logs/models/log_types.dart';
 
 class LLMLoggingService {
   final LLMService _llmService = llmService;
@@ -22,71 +21,80 @@ class LLMLoggingService {
   //    }
   // }
   static const Map<String, dynamic> logTypes = {
-    'feeding': {
-      'categories': {
-        'bottle': {
-          'subCategories': [
-            'formula',
-            'breast milk',
-            'goat milk',
-            'cow milk',
-            'tube feeding',
-            'soy milk',
-            'other'
-          ],
-          'units': ['oz', 'ml'],
-          'requiredFields': ['amount', 'unit']
-        },
-        'nursing': {
-          'requiredFields': ['startAt', 'data'],
-          'data': {
-            'durationLeft': 'number?',
-            'durationRight': 'number?',
-            'last': ['left', 'right']
-          }
-        }
-      }
+    'feeding_bottle': {
+      'type': 'feeding',
+      'category': 'bottle',
+      'validSubCategories': [
+        'formula',
+        'breast milk',
+        'goat milk',
+        'cow milk',
+        'tube feeding',
+        'soy milk',
+        'other'
+      ],
+      'validUnits': ['oz', 'ml'],
+      'requiredFields': ['amount', 'unit', 'subCategory'],
+    },
+    'feeding_nursing': {
+      'type': 'feeding',
+      'category': 'nursing',
+      'requiredFields': ['startAt'],
+      'validFields': {
+        'durationLeft': 'number',
+        'durationRight': 'number',
+        'last': ['left', 'right'],
+      },
     },
     'sleep': {
-      'requiredFields': ['startAt', 'endAt'],
-      'optional': ['notes']
+      'type': 'sleep',
+      'requiredFields': ['startAt'],
+      'optionalFields': ['endAt', 'notes'],
     },
     'medicine': {
-      'categories': [
+      'type': 'medicine',
+      'validCategories': [
         'tylenol',
         'motrin',
         'ibuprofen',
         'acetaminophen',
         'other'
       ],
-      'units': ['ml', 'mg'],
-      'requiredFields': ['amount', 'unit', 'startAt', 'category']
+      'validUnits': ['ml', 'mg'],
+      'requiredFields': ['amount', 'unit', 'startAt', 'category'],
     },
     'solids': {
-      'requiredFields': ['startAt', 'data'],
-      'data': {'food': 'string[]'}
+      'type': 'solids',
+      'requiredFields': ['startAt', 'food'],
+      'validFields': {
+        'food': 'string[]',
+      },
     },
     'activity': {
-      'categories': ['tummy time', 'bath', 'play', 'reading', 'other'],
+      'type': 'activity',
+      'validCategories': ['tummy time', 'bath', 'play', 'reading', 'other'],
       'requiredFields': ['startAt', 'category'],
-      'optional': ['endAt', 'amount', 'notes']
+      'optionalFields': ['endAt', 'amount', 'notes'],
     },
     'diaper': {
-      'categories': ['wet', 'dirty', 'both'],
-      'requiredFields': ['startAt', 'category']
+      'type': 'diaper',
+      'validCategories': ['wet', 'dirty', 'both'],
+      'requiredFields': ['startAt', 'category'],
     },
     'milestone': {
-      'requiredFields': ['startAt', 'description']
+      'type': 'milestone',
+      'requiredFields': ['startAt', 'description'],
     },
     'measurement': {
-      'categories': ['weight', 'height', 'head'],
-      'units': {
+      'type': 'measurement',
+      'validCategories': ['weight', 'height', 'head'],
+      'validUnits': {
         'weight': ['lb', 'kg', 'oz', 'g'],
         'height': ['in', 'cm'],
-        'head': ['in', 'cm']
+        'head': ['in', 'cm'],
       },
-      'requiredFields': ['startAt', 'category', 'amount', 'unit']
-    }
+      'requiredFields': ['startAt', 'category', 'amount', 'unit'],
+    },
   };
 
   static const String _systemPrompt = '''
@@ -96,37 +104,36 @@ Rules:
 1. Convert all times to ISO 8601 format using the provided timezone
 2. If no startAt time is specified, use the current time
 3. For relative times (e.g. "5 minutes ago"), calculate based on current time
-4. Only use categories and values that are explicitly defined in the context.logTypes
+4. Only use log types and values that are explicitly defined in logTypes
 5. All numerical values should be converted to their base unit (ml, oz, minutes)
-6. Match kid names to the provided kid IDs in context
+6. Try to match kid names to the provided kid IDs in context. If no match is found, we'll add one later.
 7. Never use 'Z' suffix in timestamps - always use the provided timezone offset
-8. Ensure all required fields for the determined type and it's category are present
-9. Do not make up or assume values that aren't explicitly mentioned
-10. If critical required information is missing, return an error object instead
+8. Ensure all required fields for the selected log type are present
+9. Do your best to guess the closest match from the logTypes based on the context and available options. EG if the user says "Milk" you can assume cows milk.
+10. If critical required information is missing, return an error object
 
 The context provides:
 - current_time: The current time in ISO 8601
 - timezone: The user's timezone
 - kids: Array of {id, name} objects for matching names
-- logTypes: Complete schema of all valid log types and their options. 
+- logTypes: Schema defining valid log types and their requirements
 
-Log fields:
-- kidId (string - required) - find the closest match to the kid's name from the kids in the context
-- type (string - required: possible values: sleep, formula, nursing, medicine)
-- startAt (ISO 8601 datetime - required)
-- endAt (ISO 8601 datetime, optional)
-- amount (number, required for formula/medicine)
-- data (object, optional, use this field ONLY for solids and pumping)
+For each log type, check:
+1. All requiredFields are present
+2. Values match validCategories/validUnits if specified
+3. Additional fields are only included if listed in optionalFields
+4. Numerical values are properly converted to specified units
 
 Example inputs and outputs:
 
 Input: "Oliver nursed for 10 mins on the left and then 5 on the right at 4pm"
 {
-    "kidId": "<oliver_id>",
+    "suggestedKidId": "<oliver_id>",
     "type": "feeding",
     "category": "nursing", // possible values: bottle, nursing
     "amount": 5,
     "startAt": "2024-01-01T16:00:00Z",
+    "endAt": "2024-01-01T16:15:00Z",
     "data": {
         "durationLeft": 10,
         "durationRight": 5,
@@ -134,9 +141,19 @@ Input: "Oliver nursed for 10 mins on the left and then 5 on the right at 4pm"
     }
 } 
 
+Input: "Oliver nursed for 20 mins at 4pm"
+{
+    "suggestedKidId": "<oliver_id>",
+    "type": "feeding",
+    "category": "nursing", // possible values: bottle, nursing
+    "amount": 20,
+    "startAt": "2024-01-01T16:00:00Z",
+    "endAt": "2024-01-01T16:20:00Z",
+} 
+
 Input: "Oliver drank 5oz of formula at 4pm"
 {
-    "kidId": "<oliver_id>",
+    "suggestedKidId": "<oliver_id>",
     "type": "feeding",
     "category": "bottle", // possible values: bottle, nursing
     "subCategory": "formula", // possible values: breast milk, goat milk, cow's milk, formula, tube feeding, soy milk, other
@@ -147,7 +164,7 @@ Input: "Oliver drank 5oz of formula at 4pm"
 
 Input: "Oliver slept for 30 mins"
 {
-    "kidId": "<oliver_id>",
+    "suggestedKidId": "<oliver_id>",
     "type": "sleep",
     "amount": 30,
     "startAt": "<current_time-30min>",
@@ -156,7 +173,7 @@ Input: "Oliver slept for 30 mins"
 
 Input: "Oliver ate avacado and banana"
 {
-    "kidId": "<oliver_id>",
+    "suggestedKidId": "<oliver_id>",
     "type": "solids",
     "startAt": "<current_time>",
     "data": {
@@ -166,7 +183,7 @@ Input: "Oliver ate avacado and banana"
 
 Input: "Oliver did Tummy Time for 10 mins"
 {
-    "kidId": "<oliver_id>",
+    "suggestedKidId": "<oliver_id>",
     "type": "activity",
     "category": "tummy time",
     "startAt": "<current_time-10min>",
@@ -176,7 +193,7 @@ Input: "Oliver did Tummy Time for 10 mins"
 
 Input: "Oliver had 2.5ml of tylenol"
 {
-    "kidId": "<oliver_id>",
+    "suggestedKidId": "<oliver_id>",
     "type": "medicine",
     "amount": 2.5,
     "unit": "ml",
@@ -219,7 +236,7 @@ Respond with either a valid JSON object matching the schema or an error object.
                 'name': k.name,
               })
           .toList(),
-      'logTypes': LogTypes.simplifiedTypes,
+      'logTypes': logTypes,
     };
 
     print('LLM CONTEXT');

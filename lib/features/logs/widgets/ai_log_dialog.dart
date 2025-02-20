@@ -31,7 +31,7 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
   bool _isProcessing = false;
   bool _isInitializing = true;
   bool _isStopping = false;
-  Log? _log = null;
+  Log? _log;
 
   @override
   void initState() {
