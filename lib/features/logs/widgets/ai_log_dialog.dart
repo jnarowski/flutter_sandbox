@@ -9,6 +9,7 @@ import 'package:flutter_sandbox/core/services/logger.dart';
 import 'package:flutter_sandbox/core/models/log.dart';
 import 'dart:async'; // Add this import
 import 'package:flutter_sandbox/core/widgets/cupertino_toast.dart';
+import 'package:flutter_sandbox/features/logs/log_provider.dart';
 
 class AILogDialog extends ConsumerStatefulWidget {
   const AILogDialog({super.key});
@@ -103,23 +104,26 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
     try {
       final appState = ref.read(appProvider);
       final llmService = ref.read(llmLoggingServiceProvider);
+      final logService = ref.read(logServiceProvider);
       final kidService = ref.read(kidServiceProvider);
       final kids = await kidService.getAll(appState.account!.id);
-      final result = await llmService.parseLogFromText(
+      final log = await llmService.parseLogFromText(
         text: _textController.text,
         kids: kids,
       );
 
-      logger.info('AI Log Result: ${result.toMap()}');
+      await logService.create(log);
+
+      logger.info('AI Log Result: ${log.toMap()}');
 
       setState(() {
-        _log = result;
+        _log = log;
         _isProcessing = false;
       });
 
       if (mounted) {
-        CupertinoToast.show(context, 'Log processed successfully');
-        Navigator.of(context).pop(result); // Return the log result
+        CupertinoToast.show(context, 'Log created successfully');
+        Navigator.of(context).pop(); // Return the log result
       }
     } catch (e, stacktrace) {
       logger.error('AI Log Error: $e');

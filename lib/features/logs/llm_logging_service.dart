@@ -3,6 +3,7 @@ import 'package:flutter_sandbox/core/ai/llm_service.dart';
 import 'package:flutter_sandbox/core/models/kid.dart';
 import 'package:flutter_sandbox/core/models/log.dart';
 import 'package:uuid/uuid.dart';
+import 'package:flutter_sandbox/features/logs/log_provider.dart';
 
 class LLMLoggingService {
   final LLMService _llmService = llmService;
@@ -260,9 +261,13 @@ Respond with either a valid JSON object matching the schema or an error object.
     print(response.text);
     print('.................');
 
+    if (response.structuredData?['error'] != null) {
+      throw Exception(response.structuredData?['error']);
+    }
+
     final log = Log(
       id: Uuid().v4(),
-      kidId: response.structuredData?['kidId'] as String?,
+      kidId: response.structuredData?['suggestedKidId'] as String?,
       type: response.structuredData?['type'] as String,
       startAt:
           parseToUTC(response.structuredData?['startAt']) ?? DateTime.now(),
