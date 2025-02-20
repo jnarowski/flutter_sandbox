@@ -2,11 +2,17 @@ import 'package:flutter_sandbox/core/ai/llm_options.dart';
 import 'package:flutter_sandbox/core/ai/llm_service.dart';
 import 'package:flutter_sandbox/core/models/kid.dart';
 import 'package:flutter_sandbox/core/models/log.dart';
+import 'package:flutter_sandbox/features/kids/kid_service.dart';
+import 'package:flutter_sandbox/features/logs/log_service.dart';
 import 'package:uuid/uuid.dart';
-import 'package:flutter_sandbox/features/logs/log_provider.dart';
+import 'package:flutter_sandbox/core/providers/app_provider.dart';
 
 class LLMLoggingService {
+  final AppState appState;
+  final KidService kidService;
+  final LogService logService;
   final LLMService _llmService = llmService;
+
   // final LogTypes logTypes = LogTypes.defaultTypes;
 
   // I want to provide all the possible context to the @llm_logging_service.dart for all possible options. I don't want it to make up a value that isn't present.
@@ -213,12 +219,41 @@ Example response for missing required information:
 Respond with either a valid JSON object matching the schema or an error object.
 ''';
 
+  LLMLoggingService({
+    required this.appState,
+    required this.kidService,
+    required this.logService,
+  });
+
   DateTime? parseToUTC(String? localTimeStr) {
     if (localTimeStr == null) {
       return null;
     }
     // Parse the ISO 8601 string directly - DateTime.parse handles the timezone offset automatically
     return DateTime.parse(localTimeStr).toUtc();
+  }
+
+  Future<Log> parseAndCreateLog(String text) async {
+    if (appState.account?.id == null) {
+      throw Exception('No account ID available');
+    }
+
+    final kids = await kidService.getAll(appState.account!.id);
+    final parsedLog = await parseLogFromText(
+      text: text,
+      kids: kids,
+    );
+
+    final kidId = parsedLog.kidId ?? appState.account?.currentKidId;
+
+    if (kidId == null) {
+      throw Exception('No kid ID available');
+    }
+
+    final newLog = parsedLog.copyWith(kidId: kidId);
+
+    await logService.create(newLog);
+    return newLog;
   }
 
   Future<Log> parseLogFromText({
@@ -265,14 +300,18 @@ Respond with either a valid JSON object matching the schema or an error object.
       throw Exception(response.structuredData?['error']);
     }
 
+    final responseData = response.structuredData;
+    if (responseData == null) {
+      throw Exception('Invalid response format from LLM');
+    }
+
     final log = Log(
       id: Uuid().v4(),
-      kidId: response.structuredData?['suggestedKidId'] as String?,
-      type: response.structuredData?['type'] as String,
-      startAt:
-          parseToUTC(response.structuredData?['startAt']) ?? DateTime.now(),
-      endAt: parseToUTC(response.structuredData?['endAt']),
-      amount: (response.structuredData?['amount'] as num?)?.toDouble(),
+      kidId: responseData['suggestedKidId'] as String?,
+      type: responseData['type'] as String,
+      startAt: parseToUTC(responseData['startAt']) ?? DateTime.now(),
+      endAt: parseToUTC(responseData['endAt']),
+      amount: (responseData['amount'] as num?)?.toDouble(),
     );
 
     print('log: $log');

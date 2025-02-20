@@ -1,17 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_sandbox/core/providers/app_provider.dart';
-import 'package:flutter_sandbox/features/kids/kid_provider.dart';
-import 'package:flutter_sandbox/features/logs/llm_logging_provider.dart';
-import 'package:flutter_sandbox/core/voice/voice_provider.dart';
 import 'package:flutter_sandbox/core/voice/widgets/voice_waveform.dart';
-import 'package:flutter_sandbox/core/services/logger.dart';
+
 import 'package:flutter_sandbox/core/models/log.dart';
 import 'dart:async'; // Add this import
-import 'package:flutter_sandbox/core/widgets/cupertino_toast.dart';
-import 'package:flutter_sandbox/features/logs/log_provider.dart';
 
-class AILogDialog extends ConsumerStatefulWidget {
+import 'package:flutter_sandbox/features/logs/widgets/ai_log_controller.dart';
+
+class AILogDialog extends ConsumerWidget {
   const AILogDialog({super.key});
 
   static Future<Log?> show(BuildContext context) {
@@ -24,241 +20,139 @@ class AILogDialog extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<AILogDialog> createState() => _AILogDialogState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.watch(aiLogControllerProvider);
 
-class _AILogDialogState extends ConsumerState<AILogDialog> {
-  final TextEditingController _textController = TextEditingController();
-  bool _isProcessing = false;
-  bool _isInitializing = true;
-  bool _isStopping = false;
-  Log? _log;
-
-  @override
-  void initState() {
-    super.initState();
-    _textController.addListener(() {
-      setState(() {}); // Trigger rebuild when text changes
-    });
+    // Initialize speech recognition on first build
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeSpeech();
-    });
-  }
-
-  Future<void> _initializeSpeech() async {
-    try {
-      // Add artificial delay to ensure modal and loading state are visible
-      await Future.delayed(const Duration(milliseconds: 350));
-
-      final voiceService = ref.read(voiceServiceProvider);
-      if (voiceService.isListening) {
-        await voiceService.stopListening();
+      if (controller.isInitializing) {
+        controller.initializeSpeech();
       }
-      await voiceService.startListening(
-        onTextUpdate: (text) {
-          setState(() {
-            _textController.text = text;
-          });
-        },
-        onTextComplete: (text) {
-          _processAIRequest();
-        },
-      );
-    } finally {
-      setState(() {
-        _isInitializing = false;
-      });
-    }
-  }
-
-  @override
-  void deactivate() {
-    final voiceService = ref.read(voiceServiceProvider);
-    if (voiceService.isListening) {
-      print('stopping voice service...');
-      voiceService.stopListening();
-    }
-    super.deactivate();
-  }
-
-  @override
-  void dispose() {
-    _textController.removeListener(() {}); // Remove listener
-    _textController.dispose();
-    super.dispose();
-  }
-
-  bool _isValidText() {
-    final text = _textController.text.trim();
-    final wordCount = text.split(' ').where((word) => word.isNotEmpty).length;
-    return wordCount >= 3;
-  }
-
-  Future<void> _processAIRequest() async {
-    if (_textController.text.isEmpty) return;
-
-    setState(() {
-      _isProcessing = true;
     });
 
-    try {
-      final appState = ref.read(appProvider);
-      final llmService = ref.read(llmLoggingServiceProvider);
-      final logService = ref.read(logServiceProvider);
-      final kidService = ref.read(kidServiceProvider);
-      final kids = await kidService.getAll(appState.account!.id);
-      final log = await llmService.parseLogFromText(
-        text: _textController.text,
-        kids: kids,
-      );
-
-      await logService.create(log);
-
-      logger.info('AI Log Result: ${log.toMap()}');
-
-      setState(() {
-        _log = log;
-        _isProcessing = false;
-      });
-
-      if (mounted) {
-        CupertinoToast.show(context, 'Log created successfully');
-        Navigator.of(context).pop(); // Return the log result
-      }
-    } catch (e, stacktrace) {
-      logger.error('AI Log Error: $e');
-      logger.error('AI Log Stacktrace: $stacktrace');
-      if (mounted) {
-        setState(() {
-          _isProcessing = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.height * 0.5, // Changed to 50% height
+      height: MediaQuery.of(context).size.height * 0.5,
       decoration: BoxDecoration(
         color: CupertinoTheme.of(context).scaffoldBackgroundColor,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(12),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
       ),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  child: const Text('Close'),
-                  onPressed: () {
-                    setState(() {
-                      _isStopping = true;
-                    });
-
-                    Future.delayed(const Duration(milliseconds: 50)).then((_) {
-                      final voiceService = ref.read(voiceServiceProvider);
-                      if (voiceService.isListening) {
-                        voiceService.stopListening();
-                      }
-                      if (mounted) {
-                        Navigator.of(context)
-                            .pop(_log); // Return the log if we have one
-                      }
-                    });
-                  },
-                ),
-                const Text('Add Log',
-                    style:
-                        TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-                CupertinoButton(
-                  padding: EdgeInsets.zero,
-                  onPressed: (_isProcessing || !_isValidText())
-                      ? null
-                      : _processAIRequest,
-                  child: _isProcessing
-                      ? const CupertinoActivityIndicator()
-                      : Text('Save',
-                          style: TextStyle(
-                            color: _isValidText()
-                                ? CupertinoTheme.of(context).primaryColor
-                                : CupertinoColors.systemGrey3,
-                          )),
-                ),
-              ],
-            ),
-          ),
+          _buildHeader(context, controller),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: _isInitializing
-                  ? const Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Starting voice recognition...'),
-                        ],
-                      ),
-                    )
-                  : _isStopping
-                      ? const Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('Stopping voice recognition...'),
-                            ],
-                          ),
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: CupertinoColors.systemGrey4,
-                                  width: 1.0,
-                                ),
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding: const EdgeInsets.all(8.0),
-                              child: const VoiceWaveform(),
-                            ),
-                            const SizedBox(height: 16),
-                            CupertinoTextField(
-                              controller: _textController,
-                              placeholder: 'Speak or type your log here...',
-                              maxLines: 1,
-                            ),
-                            const SizedBox(height: 24),
-                            const Text(
-                              'Examples:',
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: CupertinoColors.systemGrey,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              '• "Sarah had 4 oz of formula at 2pm"\n'
-                              '• "Changed wet diaper for Tommy"\n'
-                              '• "James slept from 1pm to 3:30pm"',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: CupertinoColors.systemGrey,
-                              ),
-                            ),
-                          ],
-                        ),
+              child: _buildContent(controller),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, AILogController controller) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            child: const Text('Close'),
+            onPressed: () async {
+              await controller.stopListening();
+              Navigator.of(context).pop(controller.log);
+            },
+          ),
+          const Text('Add Log',
+              style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+          CupertinoButton(
+            padding: EdgeInsets.zero,
+            onPressed: (controller.isProcessing || !controller.isValidText)
+                ? null
+                : controller.processAIRequest,
+            child: controller.isProcessing
+                ? const CupertinoActivityIndicator()
+                : Text('Save',
+                    style: TextStyle(
+                      color: controller.isValidText
+                          ? CupertinoTheme.of(context).primaryColor
+                          : CupertinoColors.systemGrey3,
+                    )),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContent(AILogController controller) {
+    if (controller.isInitializing) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [Text('Starting voice recognition...')],
+        ),
+      );
+    }
+
+    if (controller.isStopping) {
+      return const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [Text('Stopping voice recognition...')],
+        ),
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: CupertinoColors.systemGrey4,
+              width: 1.0,
+            ),
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          padding: const EdgeInsets.all(8.0),
+          child: const VoiceWaveform(),
+        ),
+        const SizedBox(height: 16),
+        CupertinoTextField(
+          controller: controller.textController,
+          placeholder: 'Speak or type your log here...',
+          maxLines: 1,
+        ),
+        const SizedBox(height: 24),
+        _buildExamples(),
+      ],
+    );
+  }
+
+  Widget _buildExamples() {
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Examples:',
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: CupertinoColors.systemGrey,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          '• "Sarah had 4 oz of formula at 2pm"\n'
+          '• "Changed wet diaper for Tommy"\n'
+          '• "James slept from 1pm to 3:30pm"',
+          style: TextStyle(
+            fontSize: 14,
+            color: CupertinoColors.systemGrey,
+          ),
+        ),
+      ],
     );
   }
 }
