@@ -17,7 +17,7 @@ class AILogDialog extends ConsumerStatefulWidget {
 
 class _AILogDialogState extends ConsumerState<AILogDialog> {
   final TextEditingController _textController = TextEditingController();
-  bool _isLoading = false;
+  bool _isProcessing = false;
   bool _isInitializing = true;
   bool _isStopping = false;
 
@@ -32,7 +32,7 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
   Future<void> _initializeSpeech() async {
     try {
       // Add artificial delay to ensure modal and loading state are visible
-      await Future.delayed(const Duration(milliseconds: 375));
+      await Future.delayed(const Duration(milliseconds: 350));
 
       final voiceService = ref.read(voiceServiceProvider);
       if (voiceService.isListening) {
@@ -43,7 +43,8 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
           setState(() {
             _textController.text = text;
           });
-          // Auto-process after speech pause
+        },
+        onTextComplete: (text) {
           _processAIRequest();
         },
       );
@@ -74,7 +75,7 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
     if (_textController.text.isEmpty) return;
 
     setState(() {
-      _isLoading = true;
+      _isProcessing = true;
     });
 
     try {
@@ -90,12 +91,12 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
       logger.info('AI Log Result: ${result.toMap()}');
 
       setState(() {
-        _isLoading = false;
+        _isProcessing = false;
       });
     } catch (e) {
       logger.error('AI Log Error: $e');
       setState(() {
-        _isLoading = false;
+        _isProcessing = false;
       });
     }
   }
@@ -160,8 +161,8 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
                         ),
                         const SizedBox(height: 16),
                         CupertinoButton.filled(
-                          onPressed: _isLoading ? null : _processAIRequest,
-                          child: _isLoading
+                          onPressed: _isProcessing ? null : _processAIRequest,
+                          child: _isProcessing
                               ? const CupertinoActivityIndicator()
                               : const Text('Process'),
                         ),

@@ -11,8 +11,6 @@ class VoiceService {
   final _soundLevelController = StreamController<double>.broadcast();
   Stream<double> get soundLevelStream => _soundLevelController.stream;
 
-  void Function(String)? onTextUpdate;
-
   Future<bool> initialize() async {
     if (_isInitialized) return true;
 
@@ -27,11 +25,14 @@ class VoiceService {
 
   Future<void> startListening({
     required void Function(String) onTextUpdate,
+    required void Function(String) onTextComplete,
   }) async {
-    this.onTextUpdate = onTextUpdate;
-
     await _speechToText.listen(
       onResult: (result) {
+        if (result.finalResult) {
+          onTextComplete(result.recognizedWords);
+        }
+
         onTextUpdate(result.recognizedWords);
       },
       onSoundLevelChange: (level) {
