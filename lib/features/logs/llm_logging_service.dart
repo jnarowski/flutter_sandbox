@@ -18,40 +18,92 @@ Rules:
 5. For medicine, assume endAt is same as startAt
 6. All numerical values should be converted to their base unit (ml, oz, minutes)
 7. Match kid names to the provided kid IDs in context
-8. If no kid is specified and there's only one kid, use that kid's ID
-9. Never use 'Z' suffix in timestamps - always use the provided timezone offset
+8. Never use 'Z' suffix in timestamps - always use the provided timezone offset
 
-Fields for all logs:
+Log fields:
 - kidId (string - required) - find the closest match to the kid's name from the kids in the context
 - type (string - required: possible values: sleep, formula, nursing, medicine)
 - startAt (ISO 8601 datetime - required)
-- endAt (ISO 8601 datetime, required for sleep)
+- endAt (ISO 8601 datetime, optional)
 - amount (number, required for formula/medicine)
-- duration (number, required for sleep/nursing
+- data (object, optional, used only for solids and pumping)
 
 Example inputs and outputs:
+
+Input: "Oliver nursed for 10 mins on the left and then 5 on the right at 4pm"
+{
+    "kidId": "<oliver_id>",
+    "type": "feeding",
+    "category": "nursing", // possible values: bottle, nursing
+    "amount": 5,
+    "startAt": "2024-01-01T16:00:00Z",
+    "data": {
+        "durationLeft": 10,
+        "durationRight": 5,
+        "last": "right"
+    }
+} 
+
 Input: "Oliver drank 5oz of formula at 4pm"
 {
     "kidId": "<oliver_id>",
-    "type": "formula",
+    "type": "feeding",
+    "category": "bottle", // possible values: bottle, nursing
+    "subCategory": "formula", // possible values: breast milk, goat milk, cow's milk, formula, tube feeding, soy milk, other
     "amount": 5,
+    "unit": "oz",
     "startAt": "2024-01-01T16:00:00Z",
-    "endAt": "2024-01-01T16:15:00Z"
 }
 
 Input: "Oliver slept for 30 mins"
 {
     "kidId": "<oliver_id>",
     "type": "sleep",
-    "duration": 30,
+    "amount": 30,
     "startAt": "<current_time-30min>",
     "endAt": "<current_time>"
+}
+
+Input: "Oliver ate avacado and banana"
+{
+    "kidId": "<oliver_id>",
+    "type": "solids",
+    "startAt": "<current_time>",
+    "data": {
+        "food": ["avacado", "banana"]
+    }
+}
+
+Input: "Oliver did Tummy Time for 10 mins"
+{
+    "kidId": "<oliver_id>",
+    "type": "activity",
+    "category": "tummy time",
+    "startAt": "<current_time-10min>",
+    "endAt": "<current_time>",
+    "amount": 10
+}
+
+Input: "Oliver had 2.5ml of tylenol"
+{
+    "kidId": "<oliver_id>",
+    "type": "medicine",
+    "amount": 2.5,
+    "unit": "ml",
+    "category": "tylenol",
+    "startAt": "<current_time>",
+    "data": {
+        "food": ["avacado", "banana"]
+    }
 }
 
 Respond with a single valid JSON object matching the schema.
 ''';
 
-  DateTime parseToUTC(String localTimeStr) {
+  DateTime? parseToUTC(String? localTimeStr) {
+    if (localTimeStr == null) {
+      return null;
+    }
     // Parse the ISO 8601 string directly - DateTime.parse handles the timezone offset automatically
     return DateTime.parse(localTimeStr).toUtc();
   }
@@ -72,10 +124,12 @@ Respond with a single valid JSON object matching the schema.
                 'name': k.name,
               })
           .toList(),
-      'log_types': LogType.values.map((e) => e.name).toList(),
+      'types': LogType.values.map((e) => e.name).toList(),
     };
 
-    print('context: $context');
+    print('LLM CONTEXT');
+    print(context);
+    print('.................');
 
     final response = await _llmService.processMessage(
       message: text,
@@ -89,19 +143,17 @@ Respond with a single valid JSON object matching the schema.
 
     print('LLM Query:');
     print(text);
-    print('...');
+    print('.................');
     print('LLM Response:');
     print(response.text);
-
-    // if (!response.success) {
-    //   throw Exception('Failed to parse log: ${response.error}');
-    // }
+    print('.................');
 
     final log = Log(
       id: Uuid().v4(),
       kidId: response.structuredData?['kidId'] as String?,
       type: response.structuredData?['type'] as String,
-      startAt: parseToUTC(response.structuredData?['startAt']),
+      startAt:
+          parseToUTC(response.structuredData?['startAt']) ?? DateTime.now(),
       endAt: parseToUTC(response.structuredData?['endAt']),
       amount: (response.structuredData?['amount'] as num?)?.toDouble(),
     );
