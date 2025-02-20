@@ -8,6 +8,7 @@ import 'package:flutter_sandbox/core/models/user.dart';
 import 'package:flutter_sandbox/features/account/account_provider.dart';
 import 'package:flutter_sandbox/features/users/user_provider.dart';
 import 'package:flutter_sandbox/core/services/logger.dart';
+import 'package:flutter_sandbox/core/voice/voice_provider.dart';
 
 // Define the state class
 class AppState {
@@ -35,51 +36,61 @@ class AppNotifier extends StateNotifier<AppState> {
 
   Future<void> initialize() async {
     try {
-      final authUser = auth.FirebaseAuth.instance.currentUser;
-      final userService = ref.read(userServiceProvider);
-      final accountService = ref.read(accountServiceProvider);
-      final kidService = ref.read(kidServiceProvider);
-
-      if (authUser == null) {
-        throw Exception('No authenticated user found');
-      }
-
-      // Fetch user data
-      final user = await userService.fetch(authUser.uid);
-
-      if (user == null) {
-        ref.read(authServiceProvider).signOut();
-        throw Exception('No user founds');
-      }
-
-      // Fetch account
-      final account = await accountService.fetch(user.accountId);
-
-      if (account == null) {
-        throw Exception('No account found for user');
-      }
-
-      // If no current kid, initialize state with just the account
-      if (account.currentKidId == null || account.currentKidId == '') {
-        state = AppState(account: account);
-        return;
-      }
-
-      final currentKid = await kidService.fetch(account.currentKidId ?? '');
-
-      if (currentKid == null) {
-        throw Exception('No kid found for account');
-      }
-
-      state = AppState(
-          account: account,
-          authUser: authUser,
-          user: user,
-          currentKid: currentKid);
+      await initializeVoiceService();
+      await initializeData();
     } catch (e) {
-      logger.i('Error initializing app: $e');
+      logger.error('Error during app initialization: $e');
       rethrow;
     }
+  }
+
+  Future<void> initializeVoiceService() async {
+    await ref.read(voiceServiceProvider).initialize();
+    logger.i('Voice service initialized');
+  }
+
+  Future<void> initializeData() async {
+    final authUser = auth.FirebaseAuth.instance.currentUser;
+    final userService = ref.read(userServiceProvider);
+    final accountService = ref.read(accountServiceProvider);
+    final kidService = ref.read(kidServiceProvider);
+
+    if (authUser == null) {
+      throw Exception('No authenticated user found');
+    }
+
+    // Fetch user data
+    final user = await userService.fetch(authUser.uid);
+
+    if (user == null) {
+      ref.read(authServiceProvider).signOut();
+      throw Exception('No user founds');
+    }
+
+    // Fetch account
+    final account = await accountService.fetch(user.accountId);
+
+    if (account == null) {
+      throw Exception('No account found for user');
+    }
+
+    // If no current kid, initialize state with just the account
+    if (account.currentKidId == null || account.currentKidId == '') {
+      state = AppState(account: account);
+      return;
+    }
+
+    final currentKid = await kidService.fetch(account.currentKidId ?? '');
+
+    if (currentKid == null) {
+      throw Exception('No kid found for account');
+    }
+
+    state = AppState(
+        account: account,
+        authUser: authUser,
+        user: user,
+        currentKid: currentKid);
   }
 
   Future<void> setCurrentKid(Kid kid) async {

@@ -19,10 +19,17 @@ class Logger {
     print('[$timestamp] $prefix: $message');
   }
 
+  // Short-form methods
   void d(String message) => log(message, level: LogLevel.debug);
   void i(String message) => log(message, level: LogLevel.info);
   void w(String message) => log(message, level: LogLevel.warning);
   void e(String message) => log(message, level: LogLevel.error);
+
+  // Long-form aliases
+  void debug(String message) => d(message);
+  void info(String message) => i(message);
+  void warning(String message) => w(message);
+  void error(String message) => e(message);
 }
 
 // Global instance

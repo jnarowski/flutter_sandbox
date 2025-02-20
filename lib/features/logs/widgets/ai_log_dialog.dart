@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_sandbox/core/providers/app_provider.dart';
 import 'package:flutter_sandbox/features/kids/kid_provider.dart';
 import 'package:flutter_sandbox/features/logs/llm_logging_provider.dart';
-import 'dart:convert';
 import 'package:flutter_sandbox/core/voice/voice_provider.dart';
 import 'package:flutter_sandbox/core/voice/widgets/voice_waveform.dart';
+import 'package:flutter_sandbox/core/services/logger.dart';
 
 class AILogDialog extends ConsumerStatefulWidget {
   const AILogDialog({super.key});
@@ -16,7 +16,6 @@ class AILogDialog extends ConsumerStatefulWidget {
 
 class _AILogDialogState extends ConsumerState<AILogDialog> {
   final TextEditingController _textController = TextEditingController();
-  String? _result;
   bool _isLoading = false;
 
   @override
@@ -61,7 +60,6 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
 
     setState(() {
       _isLoading = true;
-      _result = null;
     });
 
     try {
@@ -69,19 +67,18 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
       final llmService = ref.read(llmLoggingServiceProvider);
       final kidService = ref.read(kidServiceProvider);
       final kids = await kidService.getAll(appState.account!.id);
-
       final result = await llmService.parseLogFromText(
         text: _textController.text,
         kids: kids,
       );
 
+      logger.info('AI Log Result: ${result.toMap()}');
       setState(() {
-        _result = const JsonEncoder.withIndent('  ').convert(result.toMap());
         _isLoading = false;
       });
     } catch (e) {
+      logger.error('AI Log Error: $e');
       setState(() {
-        _result = 'Error: $e';
         _isLoading = false;
       });
     }
@@ -91,14 +88,16 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        middle: const Text('AI Log Test'),
+        middle: const Text('Add Log'),
         leading: CupertinoButton(
           padding: EdgeInsets.zero,
           child: const Text('Close'),
           onPressed: () {
             if (mounted) {
+              print('mounted...');
               final voiceService = ref.read(voiceServiceProvider);
               if (voiceService.isListening) {
+                print('stopping voice service...');
                 voiceService.stopListening();
               }
             }
@@ -125,20 +124,6 @@ class _AILogDialogState extends ConsumerState<AILogDialog> {
                     ? const CupertinoActivityIndicator()
                     : const Text('Process'),
               ),
-              const SizedBox(height: 16),
-              if (_result != null)
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: CupertinoColors.systemGrey6,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: SingleChildScrollView(
-                      child: Text(_result!),
-                    ),
-                  ),
-                ),
             ],
           ),
         ),
