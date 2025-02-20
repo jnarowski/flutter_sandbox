@@ -6,6 +6,7 @@ import 'widgets/log_form.dart';
 import 'widgets/log_list_tile.dart';
 import 'package:flutter_sandbox/core/models/log.dart';
 import 'widgets/ai_log_dialog.dart';
+// import 'widgets/ai_log_dialog_two.dart';
 
 // State provider for selected week
 final selectedWeekProvider = StateProvider<DateTime>((ref) => DateTime.now());

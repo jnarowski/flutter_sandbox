@@ -28,25 +28,20 @@ class VoiceService {
   Future<void> startListening({
     required void Function(String) onTextUpdate,
   }) async {
-    if (!_isInitialized) {
-      final initialized = await initialize();
-      if (!initialized) return;
-    }
-
     this.onTextUpdate = onTextUpdate;
 
     await _speechToText.listen(
       onResult: (result) {
-        if (result.finalResult) {
-          onTextUpdate(result.recognizedWords);
-        }
+        onTextUpdate(result.recognizedWords);
       },
       onSoundLevelChange: (level) {
         _soundLevelController.add(level);
       },
       pauseFor: const Duration(seconds: 2),
-      cancelOnError: false,
-      partialResults: true,
+      listenOptions: SpeechListenOptions(
+        partialResults: true,
+        cancelOnError: false,
+      ),
     );
   }
 
@@ -57,6 +52,8 @@ class VoiceService {
   }
 
   void dispose() {
+    print('disposing voice service...');
+
     _disposed = true;
     _speechToText.stop();
     _soundLevelController.close();
