@@ -6,6 +6,7 @@
 
 - [ ] Rename project to 'Bella Baby Tracker' and update com.bellababytracker.* everywhere
 - [ ] Connect with new Firebase project
+- [ ] Refactor remaining imports to use full package: prefix
 
 ### Logging
 
