@@ -18,36 +18,3 @@ LLMLoggingService llmLoggingService(ref) {
     logService: logService,
   );
 }
-
-// @riverpod
-// class LLMLogging extends _$LLMLogging {
-//   @override
-//   LLMLoggingService build() {
-//     return LLMLoggingService();
-//   }
-
-//   Future<Log> process(String text) async {
-//     final appState = ref.read(appProvider);
-//     final kidService = ref.read(kidServiceProvider);
-//     final logService = ref.read(logServiceProvider);
-
-//     if (appState.account?.id == null) {
-//       throw Exception('No account ID available');
-//     }
-
-//     final kids = await kidService.getAll(appState.account!.id);
-//     final parsedLog = await state.parseLogFromText(
-//       text: text,
-//       kids: kids,
-//     );
-
-//     final kidId = parsedLog.kidId ?? appState.account?.currentKidId;
-//     if (kidId == null) {
-//       throw Exception('No kid ID available');
-//     }
-//     final newLog = parsedLog.copyWith(kidId: kidId);
-
-//     await logService.create(newLog);
-//     return newLog;
-//   }
-// }

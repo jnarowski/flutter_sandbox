@@ -64,7 +64,7 @@ class AILogDialog extends ConsumerWidget {
               Navigator.of(context).pop(controller.log);
             },
           ),
-          const Text('Add Log',
+          const Text('Add Voice Log',
               style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
           CupertinoButton(
             padding: EdgeInsets.zero,
